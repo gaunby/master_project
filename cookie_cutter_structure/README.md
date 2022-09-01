@@ -1,4 +1,4 @@
-master_project
+Cookie Cutter Structure 
 ==============================
 
 NLP and KG
