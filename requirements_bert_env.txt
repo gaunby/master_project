@@ -1,0 +1,26 @@
+asttokens==2.0.8
+attrs==22.1.0
+backcall==0.2.0
+certifi @ file:///C:/b/abs_ac29jvt43w/croot/certifi_1665076682579/work/certifi
+colorama==0.4.5
+decorator==5.1.1
+executing==1.1.1
+fastjsonschema==2.16.2
+ipython==8.5.0
+jedi==0.18.1
+jsonschema==4.16.0
+jupyter-core==4.11.1
+matplotlib-inline==0.1.6
+nbformat==5.7.0
+parso==0.8.3
+pickleshare==0.7.5
+prompt-toolkit==3.0.31
+pure-eval==0.2.2
+Pygments==2.13.0
+pyrsistent==0.18.1
+pywin32==304
+six==1.16.0
+stack-data==0.5.1
+traitlets==5.4.0
+wcwidth==0.2.5
+wincertstore==0.2
