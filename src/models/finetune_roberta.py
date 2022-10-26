@@ -1,7 +1,6 @@
 
 from wandb.sdk.integration_utils.data_logging import ValidationDataLogger
 from transformers import RobertaTokenizer, DataCollatorWithPadding, RobertaForSequenceClassification, TrainingArguments, Trainer
-
 import numpy as np
 from datasets import load_from_disk, load_metric
 import torch
@@ -14,13 +13,13 @@ wandb.init(
     dir="/work3/s174498/wandb",
 )
 
+# Prepare the text inputs for the model
 def preprocess_function(examples):
     return tokenizer(examples["sentence"], truncation=True)
 
-# Load metric
-accuracy_metric = load_metric("accuracy")
-
+# Define the evaluation metrics 
 def compute_metrics(eval_pred):
+    accuracy_metric = load_metric("accuracy")
     predictions, labels = eval_pred
     predictions = np.argmax(predictions, axis=1)
 
@@ -33,20 +32,25 @@ def compute_metrics(eval_pred):
     # metrics from the datasets library have a compute method
     return accuracy_metric.compute(predictions=predictions, references=labels)
 
-# Load data from disk
+# 1. Load data from disk
 train_dataset = load_from_disk('/work3/s174498/sst2_dataset/train_dataset')
 validation_dataset = load_from_disk('/work3/s174498/sst2_dataset/validation_dataset')
 
-# tokenization
+# 2. Preprocess data
+# Set Roberta tokenizer
 tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
 tokenized_train = train_dataset.map(preprocess_function, batched=True)
-tokenized_val = val_dataset.map(preprocess_function, batched=True)
+tokenized_val = validation_dataset.map(preprocess_function, batched=True)
 
+# Use data_collector to convert our samples to PyTorch tensors and concatenate them with the correct amount of padding
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
+# 3. Train model
+# Define RoBERTa as our base model:
 model = RobertaForSequenceClassification.from_pretrained('roberta-base')
 
+# log predictions for better visualization (wandb)
 validation_inputs = tokenized_val.remove_columns(['label', 'idx'])
 validation_targets = [tokenized_val.features['label'].int2str(x) for x in tokenized_val['label']]
 
@@ -55,8 +59,14 @@ validation_logger = ValidationDataLogger(
     targets = validation_targets
 )
 
+# Fine-tune the model
+
+# save checkpoints locally
 repo_name = "/work3/s174498/finetuning-sentiment-model-all-samples-test4"
 
+# The HuggingFace Trainer class is utilized to train
+
+# Define the TrainingArguments 
 args = TrainingArguments(
     report_to='wandb',                    # enable logging to W&B
     output_dir=repo_name,                 # set output directory
@@ -76,6 +86,7 @@ args = TrainingArguments(
     lr_scheduler_type = "linear"
 )
 
+# The Trainer handles all the training and evaluation logic
 trainer = Trainer(
     model=model,                        # model to be trained
     args=args,                          # training args
@@ -86,6 +97,8 @@ trainer = Trainer(
     compute_metrics=compute_metrics     # for custom metrics
 )
 
+# Train the modele
 trainer.train()
 
+# Close W&B run
 wandb.finish()
