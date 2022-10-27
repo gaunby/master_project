@@ -1,13 +1,13 @@
 
 from wandb.sdk.integration_utils.data_logging import ValidationDataLogger
-from transformers import RobertaTokenizer, DataCollatorWithPadding, RobertaForSequenceClassification, TrainingArguments, Trainer
+from transformers import RobertaTokenizer, DataCollatorWithPadding, RobertaForSequenceClassification, TrainingArguments, Trainer, EarlyStoppingCallback, IntervalStrategy
 import numpy as np
 from datasets import load_from_disk, load_metric
 
 import wandb
 wandb.init(
     project="SST2_sentiment_analysis",
-    name='finetune_roberta_test5',
+    name='finetune_roberta_test10',
     entity="speciale",
     dir="/work3/s174498/wandb",
 )
@@ -61,7 +61,7 @@ validation_logger = ValidationDataLogger(
 # Fine-tune the model
 
 # save checkpoints locally
-repo_name = "/work3/s174498/finetuning-sentiment-model-all-samples-test5"
+repo_name = "/work3/s174498/finetuning-sentiment-model-all-samples-test10"
 
 # The HuggingFace Trainer class is utilized to train
 
@@ -70,19 +70,18 @@ args = TrainingArguments(
     report_to='wandb',                    # enable logging to W&B
     output_dir=repo_name,                 # set output directory
     overwrite_output_dir=True,
-    evaluation_strategy='steps',          # check evaluation metrics on a given # of steps
     learning_rate=2e-05,                  # we can customize learning rate
     per_device_train_batch_size = 16, 
     per_device_eval_batch_size = 16,
-    logging_steps=100,                    # we will log every x steps
-    eval_steps=500,                       # we will perform evaluation every x steps
+    logging_steps=50,                     # we will log every x steps
+    eval_steps=50,                        # we will perform evaluation every x steps
     save_total_limit=1,
     num_train_epochs=5,
     gradient_accumulation_steps = 1, 
-    eval_accumulation_steps=1,            # report evaluation results after each step
+    eval_accumulation_steps=50,            # report evaluation results after each step
     load_best_model_at_end=True,
     metric_for_best_model='accuracy',
-    lr_scheduler_type = "linear"
+    evaluation_strategy = IntervalStrategy.STEPS 
 )
 
 # The Trainer handles all the training and evaluation logic
@@ -92,11 +91,12 @@ trainer = Trainer(
     train_dataset=tokenized_train,
     eval_dataset=tokenized_val,
     tokenizer=tokenizer,                # for padding batched data
-    data_collator=data_collator,            
-    compute_metrics=compute_metrics     # for custom metrics
+    data_collator=data_collator,        
+    compute_metrics=compute_metrics,    # for custom metrics
+    callbacks = [EarlyStoppingCallback(early_stopping_patience=3)]
 )
 
-# Train the modele
+# Train the model
 trainer.train()
 
 # Close W&B run
