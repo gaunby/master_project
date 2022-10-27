@@ -3,7 +3,6 @@ from wandb.sdk.integration_utils.data_logging import ValidationDataLogger
 from transformers import RobertaTokenizer, DataCollatorWithPadding, RobertaForSequenceClassification, TrainingArguments, Trainer
 import numpy as np
 from datasets import load_from_disk, load_metric
-import torch
 
 import wandb
 wandb.init(
