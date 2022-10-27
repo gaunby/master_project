@@ -8,7 +8,7 @@ import torch
 import wandb
 wandb.init(
     project="SST2_sentiment_analysis",
-    name='finetune_roberta_test4',
+    name='finetune_roberta_test5',
     entity="speciale",
     dir="/work3/s174498/wandb",
 )
@@ -62,7 +62,7 @@ validation_logger = ValidationDataLogger(
 # Fine-tune the model
 
 # save checkpoints locally
-repo_name = "/work3/s174498/finetuning-sentiment-model-all-samples-test4"
+repo_name = "/work3/s174498/finetuning-sentiment-model-all-samples-test5"
 
 # The HuggingFace Trainer class is utilized to train
 
