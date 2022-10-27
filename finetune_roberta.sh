@@ -32,4 +32,4 @@
 # here follow the commands you want to execute
 source ~/miniconda3/bin/activate
 conda activate sent_env
-python src/models/huggingface_example.py
+python src/models/finetune_roberta.py
