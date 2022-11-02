@@ -1,3 +1,7 @@
+# inspi to function comes from:
+# https://towardsdatascience.com/visualize-bert-sequence-embeddings-an-unseen-way-1d6a351e4568
+
+
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import pandas as pd
