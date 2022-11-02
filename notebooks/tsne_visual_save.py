@@ -52,6 +52,8 @@ visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, p
 perplexity = 10
 visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
 
+labels = output_pretrained.label_ids
+
 hidden_states = output_pretrained.predictions[1][1:]
 title = 'pretrained_results'
 layers_to_visualize = [0,1,2,3,4,5,6,7,8,9,10,11]
