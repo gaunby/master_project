@@ -91,3 +91,6 @@ target/
 # stdout stderr
 *.err
 *.out
+
+# folders to ignore
+notebooks/figures_tables
