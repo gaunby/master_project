@@ -57,6 +57,6 @@ init = 'pca'
 #perplexity = 10
 #visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
 perplexity = 30
-visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
+visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
 #perplexity = 50
 #visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
