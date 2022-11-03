@@ -18,7 +18,7 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
     label_text = np.where(np.array(labels).reshape(-1) == 1, label_text, 'pos')
 
     col_size = int(num_layers/2)
-    fig = plt.figure(figsize=(15,col_size*4), constrained_layout=True) #each subplot of size 6x6, each row will hold 4 plots
+    fig = plt.figure(figsize=(15,col_size*3.5), constrained_layout=True) #each subplot of size 6x6, each row will hold 4 plots
     fig.suptitle(f'T-SNE results of hidden layers in RoBERTa', fontsize =24)
     ax = [fig.add_subplot(col_size,2,i+1) for i in range(num_layers)]
     
@@ -35,16 +35,17 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
         
         df = pd.DataFrame.from_dict({'first dim':layer_dim_reduced_embeds[:,0],'second dim':layer_dim_reduced_embeds[:,1],'label':labels, 'label_text': label_text})
         
-        scatter = sns.scatterplot(data=df,x='first dim',y='second dim',hue='label_text',ax=ax[i], palette = palette, alpha = 0.8 )
+        scatter = sns.scatterplot(data=df,x='first dim',y='second dim',hue='label_text',ax=ax[i], palette = palette )
         scatter.legend(loc = 'upper right',fontsize = 'x-large', title = 'class',title_fontsize='x-large');
-        scatter.axes.set_title( f'Layer {layer_i}',fontsize='xx-large')
-        scatter.set_xlabel("x",fontsize='xx-large');
-        scatter.set_ylabel("y",fontsize='xx-large');
-        scatter.tick_params(labelsize='x-large')
+
+        scatter.axes.set_title( f'Layer {layer_i+1}',fontsize=20);
+        scatter.set_xlabel('1st dim',fontsize=16);
+        scatter.set_ylabel('2nd dim',fontsize=16);
+        scatter.tick_params(labelsize='x-large');
 
     #fig.tight_layout();
     if save:    
-        plt.savefig(f'/work3/s174498/roberta_files/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)
+        plt.savefig(f'/zhome/94/5/127021/speciale/master_project/notebooks/figures_tables/hidden_layers_{title}_{perplexity}_{init}.pdf',format='pdf',pad_inches=0)#(f'/work3/s174498/roberta_files/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)
 
 
 
