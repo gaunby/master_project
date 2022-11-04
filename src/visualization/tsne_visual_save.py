@@ -6,7 +6,7 @@ from tsne_visual import visualize_layerwise_embeddings
 
 # load data
 datadir = '/work3/s174498/sst2_dataset/'
-
+print('>>> load data <<<')
 test_dataset = load_from_disk(datadir + 'test_dataset')
 #train_dataset = load_from_disk(datadir + 'train_dataset')
 #validation_dataset = load_from_disk(datadir + 'validation_dataset')
@@ -14,7 +14,7 @@ test_dataset = load_from_disk(datadir + 'test_dataset')
 
 # load
 checkpoint = '/work3/s174498/finetuning-sentiment-model-all-samples-test6/checkpoint-1000'
-
+print('>>> load models <<<')
 # tokenizer
 tokenizer_checkpoint = RobertaTokenizer.from_pretrained(checkpoint) 
 tokenizer_pretrained = RobertaTokenizer.from_pretrained('roberta-base')
@@ -23,16 +23,17 @@ model = RobertaForSequenceClassification.from_pretrained(checkpoint,output_hidde
 model_pretrained = RobertaForSequenceClassification.from_pretrained('roberta-base',output_hidden_states = True,return_dict = True)
 
 # Prepare the text inputs for the model
-def preprocess_function(examples):
-    return tokenizer_checkpoint(examples["sentence"], truncation=True)
+#def preprocess_function(examples):
+#    return tokenizer_checkpoint(examples["sentence"], truncation=True)
+#tokenized_test = test_dataset.map(preprocess_function, batched=True)
 
-tokenized_test = test_dataset.map(preprocess_function, batched=True)
-
+print('>>> load predictions <<<')
 with open('/work3/s174498/roberta_files/prediction_test6.pickle', 'rb') as handle:
     output_finetune = pickle.load(handle)
 
 with open('/work3/s174498/roberta_files/output_roberta_base.pickle', 'rb') as handle:
     output_pretrained = pickle.load(handle)
+print('>>> create fig <<<')
 """
 # global 
 labels = output_finetune.label_ids

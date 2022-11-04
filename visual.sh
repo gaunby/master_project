@@ -1,3 +1,4 @@
+
 #!/bibsub> ## General options
 ### -- specify queue --
 #BSUB -q gpuv100
@@ -30,4 +31,4 @@
 # here follow the commands you want to execute
 source ~/miniconda3/bin/activate
 conda activate roberta_env
-python /zhome/94/5/127021/speciale/master_project/src/visualization/tsne_visual_save.py
+python src/visualization/tsne_visual_save.py

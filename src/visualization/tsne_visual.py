@@ -43,7 +43,8 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
         scatter.set_ylabel('2nd dim',fontsize=16);
         scatter.tick_params(labelsize='x-large');
 
-    if save:    
+    if save: 
+        print('>>> save fig. <<<')   
         plt.savefig(f'/zhome/94/5/127021/speciale/master_project/src/visualization/figures/hidden_layers_{title}_{perplexity}_{init}.pdf',format='pdf',pad_inches=0)#(f'/work3/s174498/roberta_files/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)
 
 
@@ -66,5 +67,6 @@ def visualize_one_layer(hidden_state,labels,title, perplexity, init, save = Fals
     scatter.set_xlabel(fontsize = 'xx-large');
     scatter.set_ylabel(fontsize =  'xx-large');
 
-    if save:    
+    if save:  
+        print('>>> save fig. <<<')  
         plt.savefig(f'/zhome/94/5/127021/speciale/master_project/src/visualization/figures/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)

@@ -24,3 +24,4 @@ output = trainer.predict(tokenized_test)
 with open(f'/work3/s174498/roberta_files/output_roberta_base.pickle', 'wb') as handle:
     pickle.dump(output, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+# avg. runtime 2 min
