@@ -2,7 +2,7 @@
 ### -- specify queue --
 #BSUB -q gpuv100
 ### -- set the job Name --
-#BSUB -J roberta_base_output
+#BSUB -J visual 
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 2
 #BSUB -R "span[hosts=1]"
@@ -30,4 +30,4 @@
 # here follow the commands you want to execute
 source ~/miniconda3/bin/activate
 conda activate roberta_env
-python tsne_visual_save.py
+python /zhome/94/5/127021/speciale/master_project/src/visualization/tsne_visual_save.py
