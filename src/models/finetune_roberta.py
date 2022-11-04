@@ -10,7 +10,7 @@ from transformers_modeling_roberta import RobertaForSequenceClassification
 import wandb
 wandb.init(
     project="SST2_sentiment_analysis",
-    name='finetune_roberta_test-head3',
+    name='/test/linear_head_1',
     entity="speciale",
     dir="/work3/s174498/wandb",
 )
@@ -51,7 +51,14 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 # 3. Train model
 # Define RoBERTa as our base model:
-model = RobertaForSequenceClassification.from_pretrained('roberta-base')
+
+'''''
+Choose either: 
+--> 'Linear_ClassificationHead': Head only consisting of a single-linear-layer
+or
+--> 'Original_ClassificationHead': Original head proposed in Transformers
+'''''
+model = RobertaForSequenceClassification.from_pretrained('roberta-base', 'Linear_ClassificationHead')
 
 # log predictions for better visualization (wandb)
 validation_inputs = tokenized_val.remove_columns(['label', 'idx'])
@@ -65,7 +72,7 @@ validation_logger = ValidationDataLogger(
 # Fine-tune the model
 
 # save checkpoints locally
-repo_name = "/work3/s174498/finetuning-sentiment-model-test-head3"
+repo_name = "/work3/s174498/test/linear_head_1"
 
 # The HuggingFace Trainer class is utilized to train
 
