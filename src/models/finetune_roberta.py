@@ -1,13 +1,16 @@
 
 from wandb.sdk.integration_utils.data_logging import ValidationDataLogger
-from transformers import RobertaTokenizer, DataCollatorWithPadding, RobertaForSequenceClassification, TrainingArguments, Trainer, EarlyStoppingCallback, IntervalStrategy
+
+from transformers import RobertaTokenizer, DataCollatorWithPadding, TrainingArguments, Trainer, EarlyStoppingCallback, IntervalStrategy
 import numpy as np
 from datasets import load_from_disk, load_metric
+
+from transformers_modeling_roberta import RobertaForSequenceClassification
 
 import wandb
 wandb.init(
     project="SST2_sentiment_analysis",
-    name='finetune_roberta_test14',
+    name='finetune_roberta_test-head3',
     entity="speciale",
     dir="/work3/s174498/wandb",
 )
@@ -62,7 +65,7 @@ validation_logger = ValidationDataLogger(
 # Fine-tune the model
 
 # save checkpoints locally
-repo_name = "/work3/s174498/finetuning-sentiment-model-all-samples-test14"
+repo_name = "/work3/s174498/finetuning-sentiment-model-test-head3"
 
 # The HuggingFace Trainer class is utilized to train
 
@@ -72,8 +75,8 @@ args = TrainingArguments(
     output_dir=repo_name,                 # set output directory
     overwrite_output_dir=True,
     learning_rate=2e-05,                  # we can customize learning rate
-    per_device_train_batch_size = 16, 
-    per_device_eval_batch_size = 16,
+    per_device_train_batch_size = 8, 
+    per_device_eval_batch_size = 8,
     logging_steps=50,                     # we will log every x steps
     eval_steps=50,                        # we will perform evaluation every x steps
     save_total_limit=1,
