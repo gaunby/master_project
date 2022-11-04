@@ -32,7 +32,7 @@ from transformers.modeling_outputs import (
     MaskedLMOutput,
     MultipleChoiceModelOutput,
     QuestionAnsweringModelOutput,
-    SequenceClassifierOutput,
+    #SequenceClassifierOutput,
     TokenClassifierOutput,
 )
 from transformers.modeling_utils import PreTrainedModel
@@ -44,8 +44,11 @@ from transformers.utils import (
     logging,
     replace_return_docstrings,
 )
+
 from transformers.models.roberta.configuration_roberta import RobertaConfig
 
+# modified output files
+from transformers_modeling_outputs import SequenceClassifierOutput, SequenceClassifierOutput_Linear
 
 logger = logging.get_logger(__name__)
 
@@ -1165,21 +1168,21 @@ class RobertaLMHead(nn.Module):
 class RobertaForSequenceClassification(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
-    def __init__(self, config):
+    def __init__(self, config, which_classifier):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
 
         self.roberta = RobertaModel(config, add_pooling_layer=False)
-        self.classifier = RobertaClassificationHead(config)
+        #self.classifier = RobertaClassificationHead(config)
         
-        '''''
+        self.classifier_type = which_classifier
         # Modification: 
         if which_classifier == 'Linear_ClassificationHead':
             self.classifier = RobertaClassificationHead_Linear(config)
         elif which_classifier == 'Original_ClassificationHead':
             self.classifier = RobertaClassificationHead(config)
-        '''''
+        
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -1226,10 +1229,13 @@ class RobertaForSequenceClassification(RobertaPreTrainedModel):
             return_dict=return_dict,
         )
         sequence_output = outputs[0]
-        print("sequence_output", sequence_output.shape)
         
-        logits = self.classifier(sequence_output)
-        print("logits", logits.shape)
+        # Modification: 
+        if self.classifier_type == 'Original_ClassificationHead':
+            logits, logits_dense = self.classifier(sequence_output)
+        elif self.classifier_type == 'Linear_ClassificationHead':
+            logits = self.classifier(sequence_output)
+
         loss = None
         if labels is not None:
             if self.config.problem_type is None:
@@ -1253,16 +1259,31 @@ class RobertaForSequenceClassification(RobertaPreTrainedModel):
                 loss_fct = BCEWithLogitsLoss()
                 loss = loss_fct(logits, labels)
 
-        if not return_dict:
-            output = (logits,) + outputs[2:]
-            return ((loss,) + output) if loss is not None else output
-
-        return SequenceClassifierOutput(
-            loss=loss,
-            logits=logits,
-            hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
-        )
+        if self.classifier_type == 'Linear_ClassificationHead':
+            if not return_dict:
+                print("not return_dict", return_dict)
+                output = (logits,) + outputs[2:]
+                return ((loss,) + output) if loss is not None else output
+            
+            return SequenceClassifierOutput_Linear(
+                loss=loss,
+                logits=logits,
+                hidden_states=outputs.hidden_states,
+                attentions=outputs.attentions
+            )
+        elif self.classifier_type == 'Original_ClassificationHead':
+            if not return_dict:
+                print("not return_dict", return_dict)
+                output = (logits,) + logits_dense + outputs[2:]
+                return ((loss,) + output) if loss is not None else output
+            
+            return SequenceClassifierOutput(
+                loss=loss,
+                logits=logits,
+                logits_dense=logits_dense,
+                hidden_states=outputs.hidden_states,
+                attentions=outputs.attentions
+            )
 
 
 @add_start_docstrings(
@@ -1444,7 +1465,7 @@ class RobertaForTokenClassification(RobertaPreTrainedModel):
             attentions=outputs.attentions,
         )
 
-'''''
+
 class RobertaClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
@@ -1460,13 +1481,13 @@ class RobertaClassificationHead(nn.Module):
     def forward(self, features, **kwargs):
         x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
         x = self.dropout(x)
-        x = self.dense(x)
-        x = torch.tanh(x)
+        x_dense = self.dense(x)
+        x = torch.tanh(x_dense)
         x = self.dropout(x)
         x = self.out_proj(x)
-        return x
-'''''
-class RobertaClassificationHead(nn.Module):
+        return x, x_dense
+
+class RobertaClassificationHead_Linear(nn.Module):
     """Linear-head for sentence-level classification tasks."""
 
     def __init__(self, config):
