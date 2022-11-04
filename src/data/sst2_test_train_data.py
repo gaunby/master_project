@@ -27,7 +27,7 @@ dataset_test_idx_1 = []
 dataset_test_sentence_1 = []
 dataset_test_label_1 = []
 
-for i in random_list[:2000]:
+for i in random_list:
     if len(dataset_test_label_0) == 895 and len(dataset_test_label_1) == 926:
         break
     if (dataset["train"]["label"][i] == 0):
