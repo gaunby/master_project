@@ -32,5 +32,5 @@
 source ~/miniconda3/bin/activate
 conda activate roberta_env
 # python notebooks/roberta_base_output.py
-#python notebooks/tsne_visual_save.py
-python notebooks/sst2_test_train_data.py
+python src/visualization/tsne_visual_save.py
+#python src/data/sst2_test_train_data.py 

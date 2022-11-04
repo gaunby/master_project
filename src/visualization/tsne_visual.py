@@ -23,7 +23,7 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
     ax = [fig.add_subplot(col_size,2,i+1) for i in range(num_layers)]
     
     palette ={0:sns.color_palette("Paired")[0], 1:sns.color_palette("Paired")[6],
-                'neg':sns.color_palette("Paired")[0], 'pos':sns.color_palette("Paired")[6]}
+                'neg':sns.color_palette("Paired")[1], 'pos':sns.color_palette("Paired")[7]}
 
     labels = np.array(labels).reshape(-1)
 
@@ -43,9 +43,9 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
         scatter.set_ylabel('2nd dim',fontsize=16);
         scatter.tick_params(labelsize='x-large');
 
-    #fig.tight_layout();
+    fig.tight_layout();
     if save:    
-        plt.savefig(f'/zhome/94/5/127021/speciale/master_project/notebooks/figures_tables/hidden_layers_{title}_{perplexity}_{init}.pdf',format='pdf',pad_inches=0)#(f'/work3/s174498/roberta_files/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)
+        plt.savefig(f'/zhome/94/5/127021/speciale/master_project/src/visualization/figures/hidden_layers_{title}_{perplexity}_{init}.pdf',format='pdf',pad_inches=0)#(f'/work3/s174498/roberta_files/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)
 
 
 
@@ -68,4 +68,4 @@ def visualize_one_layer(hidden_state,labels,title, perplexity, init, save = Fals
     scatter.set_ylabel(fontsize =  'xx-large');
 
     if save:    
-        plt.savefig(f'/work3/s174498/roberta_files/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)
+        plt.savefig(f'/zhome/94/5/127021/speciale/master_project/src/visualization/figures/hidden_layers_{title}_{perplexity}_{init}',format='png',pad_inches=0)
