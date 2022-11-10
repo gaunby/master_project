@@ -28,11 +28,11 @@ model_pretrained = RobertaForSequenceClassification.from_pretrained('roberta-bas
 #tokenized_test = test_dataset.map(preprocess_function, batched=True)
 
 print('>>> load predictions <<<')
-with open('/work3/s174498/roberta_files/output_head3.pickle', 'rb') as handle:
+with open('/work3/s174498/roberta_files/test_output_roberta_head_linear.pickle', 'rb') as handle:
     output_linear = pickle.load(handle)
 
-#with open('/work3/s174498/roberta_files/output_roberta_base.pickle', 'rb') as handle:
-#    output_pretrained = pickle.load(handle)
+with open('/work3/s174498/roberta_files/test_logits_dense_output_roberta_head_nn.pickle', 'rb') as handle:
+    output_original = pickle.load(handle)
 print('>>> create fig <<<')
 
 # global 
@@ -43,16 +43,17 @@ title = 'linear_results'
 layers_to_visualize = [0,1,2,3,4,5,6,7,8,9,10,11]
 init = 'pca'
 perplexity = 10
-visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
+visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
 perplexity = 30
-visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
+visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
 perplexity = 50
-visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
-"""
-labels = output_pretrained.label_ids
+visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
 
-hidden_states = output_pretrained.predictions[1][1:]
-title = 'pretrained_results'
+
+labels = output_original.label_ids
+
+hidden_states = output_original.predictions[1][1:]
+title = 'original_results'
 layers_to_visualize = [0,1,2,3,4,5,6,7,8,9,10,11]
 init = 'pca'
 #perplexity = 10
@@ -61,4 +62,3 @@ perplexity = 30
 visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
 #perplexity = 50
 #visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
-""" 
