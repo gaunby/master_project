@@ -5,12 +5,12 @@ from transformers import RobertaTokenizer, DataCollatorWithPadding, TrainingArgu
 import numpy as np
 from datasets import load_from_disk, load_metric
 
-from transformers_modeling_roberta import RobertaForSequenceClassification
+#from transformers_modeling_roberta import RobertaForSequenceClassification
 
 import wandb
 wandb.init(
     project="SST2_sentiment_analysis",
-    name='/test/linear_head_1',
+    name='/final/original_head',
     entity="speciale",
     dir="/work3/s174498/wandb",
 )
@@ -54,11 +54,12 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 '''''
 Choose either: 
---> 'Linear_ClassificationHead': Head only consisting of a single-linear-layer
+--> 'RobertaForSequenceClassification_Linear': Head only consisting of a single-linear-layer
 or
---> 'Original_ClassificationHead': Original head proposed in Transformers
+--> 'RobertaForSequenceClassification_Original': Original head proposed in Transformers
 '''''
-model = RobertaForSequenceClassification.from_pretrained('roberta-base', 'Linear_ClassificationHead')
+from transformers_modeling_roberta import RobertaForSequenceClassification_Original
+model = RobertaForSequenceClassification_Original.from_pretrained('roberta-base')
 
 # log predictions for better visualization (wandb)
 validation_inputs = tokenized_val.remove_columns(['label', 'idx'])
@@ -72,7 +73,7 @@ validation_logger = ValidationDataLogger(
 # Fine-tune the model
 
 # save checkpoints locally
-repo_name = "/work3/s174498/test/linear_head_1"
+repo_name = "/work3/s174498/final/original_head"
 
 # The HuggingFace Trainer class is utilized to train
 
@@ -82,8 +83,8 @@ args = TrainingArguments(
     output_dir=repo_name,                 # set output directory
     overwrite_output_dir=True,
     learning_rate=2e-05,                  # we can customize learning rate
-    per_device_train_batch_size = 8, 
-    per_device_eval_batch_size = 8,
+    per_device_train_batch_size = 16, 
+    per_device_eval_batch_size = 16,
     logging_steps=50,                     # we will log every x steps
     eval_steps=50,                        # we will perform evaluation every x steps
     save_total_limit=1,
