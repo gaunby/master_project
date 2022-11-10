@@ -2,7 +2,7 @@
 import pickle
 from transformers import RobertaTokenizer, RobertaForSequenceClassification
 from datasets import load_from_disk
-from tsne_visual import visualize_layerwise_embeddings
+from tsne_visual import visualize_layerwise_embeddings, visualize_one_layer
 
 # load data
 #datadir = '/work3/s174498/sst2_dataset/'
@@ -32,12 +32,15 @@ with open('/work3/s174498/roberta_files/test_output_roberta_head_linear.pickle',
     output_linear = pickle.load(handle)
 
 with open('/work3/s174498/roberta_files/test_logits_dense_output_roberta_head_nn.pickle', 'rb') as handle:
+    output_nn = pickle.load(handle)
+
+with open('/work3/s174498/roberta_files/output_roberta_base.pickle', 'rb') as handle:
     output_original = pickle.load(handle)
+
 print('>>> create fig <<<')
 
-# global 
+# fine tune linear 
 labels = output_linear.label_ids
-
 hidden_states = output_linear.predictions[1][1:]
 title = 'linear_results'
 layers_to_visualize = [0,1,2,3,4,5,6,7,8,9,10,11]
@@ -49,16 +52,54 @@ visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, p
 perplexity = 50
 visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
 
+# linear-head
+sequence_output = output_linear.predictions[2]
+layer_name = 'encoder-output'
+perplexity = 10
+visualize_one_layer(sequence_output,labels,title, perplexity, init, layer_name, save = True)
+perplexity = 30
+visualize_one_layer(sequence_output,labels,title, perplexity, init, layer_name, save = True)
+perplexity = 50
+visualize_one_layer(sequence_output,labels,title, perplexity, init, layer_name, save = True)
 
+
+# finetune NN
+labels = output_nn.label_ids
+hidden_states = output_nn.predictions[1][1:]
+title = 'nn_results'
+layers_to_visualize = [0,1,2,3,4,5,6,7,8,9,10,11]
+init = 'pca'
+perplexity = 10
+visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
+perplexity = 30
+visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
+perplexity = 50
+visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
+# nn-head
+sequence_output = output_nn.predictions[2]
+layer_name = 'encoder-output'
+perplexity = 10
+visualize_one_layer(sequence_output,labels,title, perplexity, init, layer_name, save = True)
+perplexity = 30
+visualize_one_layer(sequence_output,labels,title, perplexity, init, layer_name, save = True)
+perplexity = 50
+visualize_one_layer(sequence_output,labels,title, perplexity, init, layer_name, save = True)
+# from original proposed RobertaSequenceHead
+logits_dense = output_nn.predictions[3]
+layer_name = 'head-dense'
+perplexity = 10
+visualize_one_layer(logits_dense,labels,title, perplexity, init, layer_name, save = True)
+perplexity = 30
+visualize_one_layer(logits_dense,labels,title, perplexity, init, layer_name, save = True)
+perplexity = 50
+visualize_one_layer(logits_dense,labels,title, perplexity, init, layer_name, save = True)
+
+# base model 
 labels = output_original.label_ids
-
 hidden_states = output_original.predictions[1][1:]
 title = 'original_results'
 layers_to_visualize = [0,1,2,3,4,5,6,7,8,9,10,11]
 init = 'pca'
-#perplexity = 10
-#visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
 perplexity = 30
 visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init, save = True)
-#perplexity = 50
-#visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity,init)
+
