@@ -633,14 +633,14 @@ class SequenceClassifierOutput_Linear(ModelOutput):
             Attentions weights after the attention softmax, used to compute the weighted average in the self-attention
             heads.
     """
-
     loss: Optional[torch.FloatTensor] = None
     logits: torch.FloatTensor = None
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
+    sequence_output: Optional[torch.FloatTensor] = None
     attentions: Optional[Tuple[torch.FloatTensor]] = None
 
 @dataclass
-class SequenceClassifierOutput(ModelOutput):
+class SequenceClassifierOutput_Original(ModelOutput):
     """
     Base class for outputs of sentence classification models.
 
@@ -661,11 +661,11 @@ class SequenceClassifierOutput(ModelOutput):
             Attentions weights after the attention softmax, used to compute the weighted average in the self-attention
             heads.
     """
-
     loss: Optional[torch.FloatTensor] = None
     logits: torch.FloatTensor = None
-    logits_dense: torch.FloatTensor = None
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
+    sequence_output: Optional[torch.FloatTensor] = None
+    logits_dense: torch.FloatTensor = None
     attentions: Optional[Tuple[torch.FloatTensor]] = None
 
 @dataclass
