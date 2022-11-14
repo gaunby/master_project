@@ -1332,7 +1332,6 @@ class RobertaForSequenceClassification_Original(RobertaPreTrainedModel):
         )
         sequence_output = outputs[0]
         logits, logits_dense = self.classifier(sequence_output)
-        
         loss = None
         if labels is not None:
             if self.config.problem_type is None:

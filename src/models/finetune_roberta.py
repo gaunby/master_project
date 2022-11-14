@@ -10,7 +10,7 @@ from datasets import load_from_disk, load_metric
 import wandb
 wandb.init(
     project="SST2_sentiment_analysis",
-    name='/final/test_linear_head',
+    name='/final/test2_original_head',
     entity="speciale",
     dir="/work3/s174498/wandb",
 )
@@ -58,8 +58,8 @@ Choose either:
 or
 --> 'RobertaForSequenceClassification_fromTransformers': Original head proposed in Transformers
 '''''
-from transformers_modeling_roberta import RobertaForSequenceClassification_fromTransformersLinear
-model = RobertaForSequenceClassification_fromTransformersLinear.from_pretrained('roberta-base')
+from transformers_modeling_roberta import RobertaForSequenceClassification_fromTransformers
+model = RobertaForSequenceClassification_fromTransformers.from_pretrained('roberta-base')
 
 # log predictions for better visualization (wandb)
 validation_inputs = tokenized_val.remove_columns(['label', 'idx'])
@@ -73,7 +73,7 @@ validation_logger = ValidationDataLogger(
 # Fine-tune the model
 
 # save checkpoints locally
-repo_name = "/work3/s174498/final/test_linear_head"
+repo_name = "/work3/s174498/final/test2_original_head"
 
 # The HuggingFace Trainer class is utilized to train
 
