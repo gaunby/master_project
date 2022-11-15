@@ -8,7 +8,7 @@ import pandas as pd
 import seaborn as sns 
 import numpy as np
 
-def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity, init, save = False):
+def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity, init, mean = True, save = False):
     dim_reducer = TSNE(n_components=2, init = init, perplexity = perplexity)
 
     num_layers = len(layers_to_visualize)
@@ -30,7 +30,12 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
     for i,layer_i in enumerate(layers_to_visualize):
         layer_embeds = hidden_states[layer_i]
         
-        layer_averaged_hidden_states = layer_embeds.mean(axis=1)
+        if mean:
+            layer_averaged_hidden_states = layer_embeds.mean(axis=1)
+        else:
+            layer_averaged_hidden_states = layer_embeds[:,0,:]
+        
+        print('>>> hidden shape:',layer_averaged_hidden_states.shape)
         layer_dim_reduced_embeds = dim_reducer.fit_transform(layer_averaged_hidden_states);
         
         df = pd.DataFrame.from_dict({'first dim':layer_dim_reduced_embeds[:,0],'second dim':layer_dim_reduced_embeds[:,1],'label':labels, 'label_text': label_text})
@@ -49,7 +54,7 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
 
 
 
-def visualize_one_layer(hidden_state,labels,title, perplexity, init, layer_name, save = False):
+def visualize_one_layer(hidden_state,labels,title, perplexity, init, layer_name, mean = True, save = False):
     dim_reducer = TSNE(n_components=2, init = init, perplexity = perplexity)
     
     n = len(np.array(labels).reshape(-1))
@@ -62,8 +67,14 @@ def visualize_one_layer(hidden_state,labels,title, perplexity, init, layer_name,
     plt.title(f't-SNE of {layer_name} in RoBERTa', fontsize =20)
 
     labels = np.array(labels).reshape(-1)
-    
-    layer_averaged_hidden_states = hidden_state.mean(axis=1)
+    if hidden_state.ndim < 3:
+        layer_averaged_hidden_states = hidden_state
+    else:
+        if mean:
+            layer_averaged_hidden_states = hidden_state.mean(axis=1)
+        else:
+            layer_averaged_hidden_states = hidden_state[:,0,:]
+    print('>>> hidden shape:',layer_averaged_hidden_states.shape)
     layer_dim_reduced_embeds = dim_reducer.fit_transform(layer_averaged_hidden_states);
     print('>>> t-SNE output dim:',layer_dim_reduced_embeds.shape)
     df = pd.DataFrame.from_dict({'first dim':layer_dim_reduced_embeds[:,0],'second dim':layer_dim_reduced_embeds[:,1],'label':labels, 'label_text': label_text})
