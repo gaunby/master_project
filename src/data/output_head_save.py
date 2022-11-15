@@ -8,8 +8,8 @@ import sys
 sys.path.insert(0, '/zhome/a6/6/127219/Speciale/master_project')
 from src.models.transformers_modeling_roberta import RobertaForSequenceClassification_Linear, RobertaForSequenceClassification_Original
 
-
-checkpoint = "/work3/s174498/final/linear_head/checkpoint-1500"
+''''
+checkpoint = "/work3/s174498/final/test_linear_head/checkpoint-1500"
 
 tokenizer = RobertaTokenizer.from_pretrained(checkpoint)
 tokenizer.model_max_len=512
@@ -31,11 +31,11 @@ trainer = Trainer(
 )
 
 output = trainer.predict(tokenized_test)
-with open(f'/work3/s174498/roberta_files/test_output_roberta_head_linear.pickle', 'wb') as handle:
+with open(f'/work3/s174498/roberta_files/final_output_roberta_head_linear.pickle', 'wb') as handle:
     pickle.dump(output, handle, protocol=pickle.HIGHEST_PROTOCOL)
+'''''
 
-
-checkpoint = "/work3/s174498/final/original_head/checkpoint-500"
+checkpoint = "/work3/s174498/final/test_original_head/checkpoint-1500"
 
 tokenizer = RobertaTokenizer.from_pretrained(checkpoint)
 tokenizer.model_max_len=512
@@ -55,7 +55,7 @@ trainer = Trainer(
 )
 
 output = trainer.predict(tokenized_test)
-with open(f'/work3/s174498/roberta_files/test_logits_dense_output_roberta_head_nn.pickle', 'wb') as handle:
+with open(f'/work3/s174498/roberta_files/checkoutput_final_output_roberta_head_nn.pickle', 'wb') as handle:
     pickle.dump(output, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # avg. runtime 5 min
