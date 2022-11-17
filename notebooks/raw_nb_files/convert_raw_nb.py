@@ -2,8 +2,8 @@ import nbformat
 import os 
 print(os.getcwd())
 
-source = 'bert_raw_nb'
-name = 'bert_inner_work'
+source = 'captum_tcav_nb' #'bert_raw_nb'
+name = 'captum_tcav' #'bert_inner_work'
 
 nb = nbformat.read(f'notebooks/raw_nb_files/{source}.py',
    nbformat.current_nbformat)
