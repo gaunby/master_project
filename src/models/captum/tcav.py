@@ -360,6 +360,11 @@ class TCAV(ConceptInterpreter):
         print('>>> GEN ACT 3')
         layer_act = LayerActivation(self.model, layer_modules)
         print('>>> GEN ACT 4')
+        print(concept.data_iter)
+        for i, examples in enumerate(concept.data_iter):
+            print('hej')
+            print(examples)
+        print('id',concept.id)
         assert concept.data_iter is not None, (
             "Data iterator for concept id:",
             "{} must be specified".format(concept.id),
