@@ -28,9 +28,14 @@ class RobertaClassifier(nn.Module):
     self.representation = None
     # using the representation of layer12 in the transformer
     for name, module in self.roberta_classifier.named_modules():
-      #print(name)
-      if name =="roberta.encoder.layer.11.output": #roberta representation 
-        #print(name)
+      # for loop runs through all layers of the model 
+      if name == "roberta.encoder.layer.11.output.dense": #roberta representation "classifier.dense": #
+        print(name)
+        print(module)
+        module.register_forward_hook(self.forward_hook_fn)
+        module.register_full_backward_hook(self.backward_hook_fn)
+      if name =="roberta.encoder.layer.111.output": #roberta representation 
+        print(name)
         module.register_forward_hook(self.forward_hook_fn)
         module.register_backward_hook(self.backward_hook_fn)
 
