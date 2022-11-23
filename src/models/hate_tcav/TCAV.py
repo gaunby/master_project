@@ -10,7 +10,7 @@ from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,ToxicityDa
 import random
 from datasets import load_from_disk
 
-random.seed(100)
+#random.seed(100)
 
 
 PATH_TO_Data = ''
@@ -25,7 +25,7 @@ PATH_TO_Model = '/work3/s174498/final/original_head/checkpoint-500' #'/zhome/94/
 datadir = '/work3/s174498/sst2_dataset/'
 test_dataset = load_from_disk(datadir + 'test_0_dataset')
 random_examples = test_dataset['sentence']
-random_concepts = [random_examples[i] for i in list(np.random.choice(len(random_examples),50))]
+random_concepts = [random_examples[i] for i in list(np.random.choice(len(random_examples),200))]
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -48,8 +48,8 @@ def get_dataloader(X, y, tokenizer, batch_size):
 
 def get_reps(model,tokenizer, concept_examples):
   #returns roberta representations    
-  batch_size = 8
-  concept_labels = torch.ones([len(concept_examples)]) #fake labels
+  batch_size = 64
+  concept_labels = torch.zeros([len(concept_examples)]) #fake labels
   
   concept_repres = []
   concept_dataloader = get_dataloader(concept_examples,concept_labels,tokenizer,batch_size)
@@ -70,13 +70,12 @@ def get_reps(model,tokenizer, concept_examples):
 
 def statistical_testing(model, tokenizer, concept_examples, num_runs=10):
   #calculates CAVs
-  print('>>> STAT TEST')
   cavs = []
 
   concept_repres = get_reps(model,tokenizer,concept_examples)
   for i in range(num_runs):
     #print(i)
-    concept_rep_ids = list(np.random.choice(range(len(concept_repres)), 5))
+    concept_rep_ids = list(np.random.choice(range(len(concept_repres)), 30))
     concept_rep = [concept_repres[i] for i in concept_rep_ids]
     # print('>>> STAT TEST mean concept', np.mean(concept_rep, axis = 0).shape) # (768,)
     cavs.append(np.mean(concept_rep, axis = 0))
@@ -86,9 +85,6 @@ def statistical_testing(model, tokenizer, concept_examples, num_runs=10):
 
 def get_logits_grad(model, tokenizer, sample, desired_class):
   #returns logits and gradients
-  print('>>> GET LOGITS GRAD')
-  #print(sample)
-
   input = tokenizer(sample, truncation=True,padding=True, return_tensors="pt")
   model.zero_grad()
   input_ids = input['input_ids'].to(device) # idx from vocab
@@ -99,17 +95,17 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   attention_mask = input['attention_mask'].to(device)
   logits, _, representation = model(input_ids, attention_mask=attention_mask)
   
-  print('logits',logits) # tror rigtig meget at logits er output 
-  print('rep', representation.shape)
+  #print('logits',logits) # tror rigtig meget at logits er output 
+  #print('rep', representation.shape)
   
   logits[0, desired_class].backward()
-  print('logits',logits)
+  #print('logits',logits)
   
   #print('cav shape',cav.shape)
   grad = model.grad_representation # differs with input sample
 
-  print('grad 1:', grad[0:3,0:3])
-  print('grad 2:', grad.shape)
+  #print('grad 1:', grad[0:3,0:3])
+  #print('grad 2:', grad.shape)
   
   #print('first',grad.shape)
   grad = grad[0][0].cpu().numpy()#grad.sum(dim=0).squeeze().cpu().detach().numpy()
@@ -140,14 +136,12 @@ def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'ra
   else:
     print('model is unknown')
     return 
-  print('>>> model loaded ')
 
   if examples_set=='random':
     examples = random_examples[:200]#random_examples
   else:
     print('examples are unknown')
     return
-  print('>>> random data ')
 
   print('calculating cavs...')
   model.to(device)
@@ -170,8 +164,8 @@ def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'ra
     grads = []
     for sample in examples:
       logit,grad = get_logits_grad(model, tokenizer, sample, desired_class)
-      print('>>> logit', logit)
-      print('>>> grad', grad.shape)
+      #print('>>> logit', logit)
+      #print('>>> grad', grad.shape)
       grads.append(grad)
       logits.append(logit)
       data ={'grads':grads,
@@ -187,6 +181,7 @@ def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'ra
     sensitivities.append([np.dot(grad, cav) for cav in concept_cavs])
   sensitivities = np.array(sensitivities)
   print('>>> sensitivet\n',sensitivities)
+  print('>>> concetp cavs', len(concept_cavs))
   print(sensitivities.shape)
   print('examples length', len(examples))
   tcavs = []
