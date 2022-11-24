@@ -66,42 +66,37 @@ def get_reps(model,tokenizer, concept_examples):
   
   return concept_repres
 
-def compute_cavs(model, tokenizer, concept_text, random_text, num_runs=10):
+def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=10):
   #calculates CAVs
   cavs = []
-  start = time.time()
-  concept_repres = get_reps(model,tokenizer,concept_text)
-  end = time.time()
-  print("Concept 150 runs rep: ",end - start)
-  start = time.time()
-  print('I have started random runs')
-  random_repres = get_reps(model,tokenizer,random_text)
-  end = time.time()
-  print("All random rep time: ",end - start)
+  
+  concept_rep = get_reps(model,tokenizer,concept_text)
+  
+  #####
+  #####
+  # build from here 
+
+
+
+  #####
+  #####
   for i in range(num_runs):
-    #print(i)
     concept_rep_ids = list(np.random.choice(range(len(concept_repres)), 30))
     concept_rep = [concept_repres[i] for i in concept_rep_ids]
-    # print('>>> STAT TEST mean concept', np.mean(concept_rep, axis = 0).shape) # (768,)
     cavs.append(np.mean(concept_rep, axis = 0))
     
   # cavs: list of arrays (the arrays are a list)
   return cavs
 
-
-def statistical_testing(model, tokenizer, concept_examples, num_runs=10):
+# old function
+def statistical_testing(model, tokenizer, concept_examples, num_runs=10): # old function
   #calculates CAVs
   cavs = []
-
   concept_repres = get_reps(model,tokenizer,concept_examples)
   for i in range(num_runs):
-    #print(i)
     concept_rep_ids = list(np.random.choice(range(len(concept_repres)), 30))
     concept_rep = [concept_repres[i] for i in concept_rep_ids]
-    # print('>>> STAT TEST mean concept', np.mean(concept_rep, axis = 0).shape) # (768,)
     cavs.append(np.mean(concept_rep, axis = 0))
-    
-  # cavs: list of arrays (the arrays are a list)
   return cavs
 
 def get_logits_grad(model, tokenizer, sample, desired_class):
@@ -133,7 +128,7 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   return logits,grad
 
 #def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'random',concept_examples = random_concepts, num_runs = 10):
-def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense",desired_class = 1,counter_set = 'random',concept_text = random_text, num_runs = 10):
+def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense",desired_class = 1,counter_set = 'wikipedia_split',concept_text = random_text, num_runs = 10):
   #returns logits, sensitivies and tcav score
   num_random_set = 10
   # load tokenizer 
@@ -178,17 +173,21 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     print('Too few concept text examples. Must be greater than 100')
     return
 
-  if counter_set=='random':
-    N = len(concept_text)
-    print('Number of random examples:', len(random_text))#
-    random_examples = [random_text[i][5:-1] for i in list(np.random.choice(len(random_text),N*num_random_set))]
+  if counter_set=='wikipedia_split':
+    num_ex_in_set = len(concept_text)
+    Data = 'wikipedia_split'
+    file_name = f'tensor_{Data}_on_{model_layer}_{num_random_set}_sets_with_{num_ex_in_set}'
+    file_random = PATH_TO_Data + '/'+ Data + '/' + file_name + '.pt'
+    random_rep = torch.load(file_random)
+    #print('Number of random examples:', len(random_text))#
+    #random_examples = [random_text[i][5:-1] for i in list(np.random.choice(len(random_text),N*num_random_set))]
   else:
-    print('examples are unknown')
+    print('Counter part does not have a representation for this layer\nCreate by running: embedding_layer_rep.py')
     return
 
   print('calculating cavs...')
   model.to(device)
-  concept_cavs = compute_cavs(model,tokenizer, concept_text, random_examples, num_runs=num_runs)
+  concept_cavs = compute_cavs(model,tokenizer, concept_text, random_rep, num_runs=num_runs)
   #concept_cavs = statistical_testing(model,tokenizer, concept_examples, num_runs=num_runs)
   save = False
   """

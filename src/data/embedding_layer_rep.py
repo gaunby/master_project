@@ -1,10 +1,15 @@
-from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,ToxicityDataset
+import sys
 from torch.utils.data.dataloader import DataLoader
 import torch
 from transformers import RobertaTokenizer
 from datasets import load_from_disk
 import numpy as np
+import random
+#sys.path.insert(0, '/zhome/a6/6/127219/Speciale/master_project')
+sys.path.insert(0, '/zhome/94/5/127021/speciale/master_project')
+from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,ToxicityDataset
 
+random.seed(1234)
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -30,8 +35,8 @@ def get_reps(model,tokenizer, concept_examples):
   concept_dataloader = get_dataloader(concept_examples,concept_labels,tokenizer,batch_size)
   with torch.no_grad():
     for i_batch, batch in enumerate(concept_dataloader):
-      input_ids = batch['input_ids'].to(device)
-      attention_mask = batch['attention_mask'].to(device)
+      input_ids = batch['input_ids']#.to(device)
+      attention_mask = batch['attention_mask']#.to(device)
       _, _, representation = model(input_ids, attention_mask=attention_mask)
       
       concept_repres.append(representation[:,0,:])
@@ -67,9 +72,11 @@ def create_embedding(random_text, classifier = 'linear',model_layer = "roberta.e
 data = random_text
 classifier = 'linear'
 model_layer = "roberta.encoder.layer.11.output.dense"
-num_random_set = 10
+model_layer_num = '11'
+num_random_set = 1
 num_ex_in_set = 150
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_'
-torch.save(random_rep, 'tensor.pt')
+name = f'tensor_{Data}_on_{model_layer_num}_{num_random_set}_sets_with_{num_ex_in_set}'
+file = PATH_TO_Data + Data + '/' + name + '.pt'
+torch.save(random_rep, file)

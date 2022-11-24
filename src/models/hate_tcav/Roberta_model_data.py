@@ -4,6 +4,7 @@ import torch.nn as nn
 #from transformers import RobertaForSequenceClassification, RobertaTokenizerFast
 import torch
 sys.path.insert(0, '/zhome/a6/6/127219/Speciale/master_project')
+#sys.path.insert(0, '/zhome/94/5/127021/speciale/master_project')
 from src.models.transformers_modeling_roberta import RobertaForSequenceClassification_Linear, RobertaForSequenceClassification_Original
 
 

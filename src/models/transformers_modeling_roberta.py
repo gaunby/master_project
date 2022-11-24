@@ -51,6 +51,7 @@ from transformers.models.roberta.configuration_roberta import RobertaConfig
 import os
 import sys
 sys.path.insert(0, '/zhome/a6/6/127219/Speciale/master_project')
+#sys.path.insert(0, '/zhome/94/5/127021/speciale/master_project')
 from src.models.transformers_modeling_outputs import SequenceClassifierOutput_Linear, SequenceClassifierOutput_Original
 
 logger = logging.get_logger(__name__)
