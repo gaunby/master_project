@@ -1,8 +1,11 @@
-
+import sys
 import torch.nn as nn
-import numpy as np 
-from transformers import RobertaForSequenceClassification, RobertaTokenizerFast
+#import numpy as np 
+#from transformers import RobertaForSequenceClassification, RobertaTokenizerFast
 import torch
+sys.path.insert(0, '/zhome/a6/6/127219/Speciale/master_project')
+from src.models.transformers_modeling_roberta import RobertaForSequenceClassification_Linear, RobertaForSequenceClassification_Original
+
 
 
 class ToxicityDataset(torch.utils.data.Dataset):
@@ -19,25 +22,24 @@ class ToxicityDataset(torch.utils.data.Dataset):
         return len(self.labels)
 
 class RobertaClassifier(nn.Module):
-  def __init__(self, folder):
+  def __init__(self,  model_type, model_layer):
     super(RobertaClassifier, self).__init__()
-    print('>>> load RSM', folder)
-    self.roberta_classifier = RobertaForSequenceClassification.from_pretrained(folder)
+    
+    if model_type == 'linear':
+      folder = '/work3/s174498/final/linear_head/checkpoint-1500'
+      self.roberta_classifier = RobertaForSequenceClassification_Linear.from_pretrained(folder)
+    elif model_type == 'original':
+      folder = '/work3/s174498/final/original_head/checkpoint-500'
+      self.roberta_classifier = RobertaForSequenceClassification_Original.from_pretrained(folder)
   
     self.grad_representation = None
     self.representation = None
     # using the representation of layer12 in the transformer
     for name, module in self.roberta_classifier.named_modules():
       # for loop runs through all layers of the model 
-      if name == "roberta.encoder.layer.11.output.dense": #roberta representation "classifier.dense": #
-        print(name)
-        print(module)
+      if name == model_layer: #"roberta.encoder.layer.11.output.dense": #roberta representation "classifier.dense": #
         module.register_forward_hook(self.forward_hook_fn)
         module.register_full_backward_hook(self.backward_hook_fn)
-      if name =="roberta.encoder.layer.111.output": #roberta representation 
-        print(name)
-        module.register_forward_hook(self.forward_hook_fn)
-        module.register_backward_hook(self.backward_hook_fn)
 
     self.roberta_classifier.requires_grad_(True)
   

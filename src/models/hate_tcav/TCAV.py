@@ -4,40 +4,40 @@ import numpy as np
 import os
 import pickle
 import torch
-from transformers import RobertaTokenizerFast
+from transformers import RobertaTokenizer # Fast
 from torch.utils.data.dataloader import DataLoader
 from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,ToxicityDataset
 import random
 from datasets import load_from_disk
+import time
 
 #random.seed(100)
 
 
-PATH_TO_Data = ''
-PATH_TO_Model = '/work3/s174498/final/original_head/checkpoint-500' #'/zhome/94/5/127021/speciale/master_project/src/models/hate_tcav/models/'
+PATH_TO_Data = '/work3/s174498/concept_random_dataset/'
+#PATH_TO_Model = '/work3/s174498/final/linear_head/checkpoint-1500' #'/zhome/94/5/127021/speciale/master_project/src/models/hate_tcav/models/'
 
 #with open(PATH_TO_Data+'data/random_stopword_tweets.txt','r') as f_:
 #  random_examples= f_.read().split('\n\n')
 
 #random_concepts = random_examples[-100:]
 # load
-# load
-datadir = '/work3/s174498/sst2_dataset/'
-test_dataset = load_from_disk(datadir + 'test_0_dataset')
-random_examples = test_dataset['sentence']
-random_concepts = [random_examples[i] for i in list(np.random.choice(len(random_examples),200))]
+# load 
+random_data = load_from_disk(PATH_TO_Data + 'wikipedia_split')
+random_text = random_data['complex_sentence'] # number of obs. = 989944
+# random_concepts = [random_examples[i] for i in list(np.random.choice(len(random_examples),200))]
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-
+"""
 model_folder_toxic = PATH_TO_Model#+'exp-Toxic-roberta/'
 model_folder_Founta = PATH_TO_Model+'exp-Founta_original_roberta'
 model_folder_EA = PATH_TO_Model+'exp-EA_2_class_roberta'
 model_folder_CH = PATH_TO_Model+'CH_roberta'
 model_folder_CH_explicit = PATH_TO_Model+'explicit_CH_roberta'
 model_folder_toxic_explicit = PATH_TO_Model+'explicit_wiki_roberta'
-
+"""
 
 def get_dataloader(X, y, tokenizer, batch_size):
   assert len(X) == len(y)
@@ -47,8 +47,9 @@ def get_dataloader(X, y, tokenizer, batch_size):
   return dataloader
 
 def get_reps(model,tokenizer, concept_examples):
-  #returns roberta representations    
-  batch_size = 64
+  #returns roberta representations of [CLS]   
+  
+  batch_size = 8 # to loop over 
   concept_labels = torch.zeros([len(concept_examples)]) #fake labels
   
   concept_repres = []
@@ -58,15 +59,35 @@ def get_reps(model,tokenizer, concept_examples):
       input_ids = batch['input_ids'].to(device)
       attention_mask = batch['attention_mask'].to(device)
       _, _, representation = model(input_ids, attention_mask=attention_mask)
-      #print('shape rep',representation.shape)
+      
       concept_repres.append(representation[:,0,:])
-
+      
   concept_repres = torch.cat(concept_repres, dim=0).cpu().detach().numpy()
-  print('>>> GET REPS concept repres', concept_repres.shape)
-  #print('concept representation shape', concept_repres.shape)
-  #print('concept representation shape', representation[:,0,:].shape)
-
+  
   return concept_repres
+
+def compute_cavs(model, tokenizer, concept_text, random_text, num_runs=10):
+  #calculates CAVs
+  cavs = []
+  start = time.time()
+  concept_repres = get_reps(model,tokenizer,concept_text)
+  end = time.time()
+  print("Concept 150 runs rep: ",end - start)
+  start = time.time()
+  print('I have started random runs')
+  random_repres = get_reps(model,tokenizer,random_text)
+  end = time.time()
+  print("All random rep time: ",end - start)
+  for i in range(num_runs):
+    #print(i)
+    concept_rep_ids = list(np.random.choice(range(len(concept_repres)), 30))
+    concept_rep = [concept_repres[i] for i in concept_rep_ids]
+    # print('>>> STAT TEST mean concept', np.mean(concept_rep, axis = 0).shape) # (768,)
+    cavs.append(np.mean(concept_rep, axis = 0))
+    
+  # cavs: list of arrays (the arrays are a list)
+  return cavs
+
 
 def statistical_testing(model, tokenizer, concept_examples, num_runs=10):
   #calculates CAVs
@@ -111,8 +132,24 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   grad = grad[0][0].cpu().numpy()#grad.sum(dim=0).squeeze().cpu().detach().numpy()
   return logits,grad
 
-def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'random',concept_examples = random_concepts, num_runs = 10):
+#def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'random',concept_examples = random_concepts, num_runs = 10):
+def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense",desired_class = 1,counter_set = 'random',concept_text = random_text, num_runs = 10):
   #returns logits, sensitivies and tcav score
+  num_random_set = 10
+  # load tokenizer 
+  if classifier == 'linear':
+    folder = '/work3/s174498/final/linear_head/checkpoint-1500'
+    tokenizer = RobertaTokenizer.from_pretrained(folder)
+  elif classifier == 'original':
+    folder = '/work3/s174498/final/original_head/checkpoint-500'
+    tokenizer = RobertaTokenizer.from_pretrained(folder)
+  else:
+    print('model is unknown')
+    return 
+  
+  model = RobertaClassifier(model_type = classifier, model_layer = model_layer )
+  
+  """
   if classifier=='toxicity':
     model = RobertaClassifier(model_folder_toxic)
     tokenizer = RobertaTokenizerFast.from_pretrained(model_folder_toxic)
@@ -136,16 +173,23 @@ def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'ra
   else:
     print('model is unknown')
     return 
+  """
+  if len(concept_text) < 100:
+    print('Too few concept text examples. Must be greater than 100')
+    return
 
-  if examples_set=='random':
-    examples = random_examples[:200]#random_examples
+  if counter_set=='random':
+    N = len(concept_text)
+    print('Number of random examples:', len(random_text))#
+    random_examples = [random_text[i][5:-1] for i in list(np.random.choice(len(random_text),N*num_random_set))]
   else:
     print('examples are unknown')
     return
 
   print('calculating cavs...')
   model.to(device)
-  concept_cavs = statistical_testing(model,tokenizer, concept_examples, num_runs=num_runs)
+  concept_cavs = compute_cavs(model,tokenizer, concept_text, random_examples, num_runs=num_runs)
+  #concept_cavs = statistical_testing(model,tokenizer, concept_examples, num_runs=num_runs)
   save = False
   """
   if os.path.exists('grads_logits/'+classifier+'_'+examples_set+'_'+str(desired_class)+'.pkl'):
