@@ -31,4 +31,4 @@
 # here follow the commands you want to execute
 source ~/miniconda3/bin/activate
 conda activate roberta_env
-python3 src/data/embedding_layer_rep_save.py
+python src/data/embedding_layer_rep_save.py
