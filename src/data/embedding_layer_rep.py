@@ -68,7 +68,7 @@ def create_embedding(random_text, classifier = 'linear',model_layer = "roberta.e
   random_repres = get_reps(model,tokenizer,random_examples)
   
   return random_repres
-
+"""
 data = random_text
 classifier = 'linear'
 model_layer = "roberta.encoder.layer.11.output.dense"
@@ -80,3 +80,4 @@ random_rep = create_embedding(random_text, classifier, model_layer, num_random_s
 name = f'tensor_{Data}_on_{model_layer_num}_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
+"""

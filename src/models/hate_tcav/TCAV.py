@@ -267,7 +267,7 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
   tcavs = []
   print('>>> length of target text:', len(target_text))
   for i in range(num_runs):
-    tcavs.append(len([s for s in sensitivities[i,:] if s<0])/len(target_text))
+    tcavs.append(len([s for s in sensitivities[i,:] if s>0])/len(target_text))
   
   print('Accuracy over all:')
   print(np.mean(acc))
