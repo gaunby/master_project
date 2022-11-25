@@ -70,7 +70,7 @@ def get_reps(model,tokenizer, concept_examples):
   
   return concept_repres
 
-def train_lm(lm, x, y, labels2text):
+def train_lm(lm, x, y, labels2text,):
   x_train, x_test, y_train, y_test = train_test_split(
             x, y, test_size=0.33, stratify=y
         )
@@ -79,17 +79,18 @@ def train_lm(lm, x, y, labels2text):
 
   # get acc.
   num_classes = max(y) + 1
-  acc = {}
   num_correct = 0
   for class_id in range(num_classes):
       # get indices of all test data that has this class.
       idx = y_test == class_id
-      acc[labels2text[class_id]] = metrics.accuracy_score(
-          y_pred[idx], y_test[idx]
-      )
+      
+      #acc[labels2text[class_id]] = metrics.accuracy_score(y_pred[idx], y_test[idx])
+      acc = metrics.accuracy_score(y_pred[idx], y_test[idx])
+      
       # overall correctness is weighted by the number of examples in this class.
-      num_correct += sum(idx) * acc[labels2text[class_id]]
-  acc["overall"] = float(num_correct) / float(len(y_test))
+      num_correct += sum(idx) * acc # acc[labels2text[class_id]]
+  #acc[f"overall_{run}"] = float(num_correct) / float(len(y_test))
+  acc = float(num_correct) / float(len(y_test))
 
   return lm, acc
 
@@ -115,7 +116,7 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500):
   labels2text = {}
   labels2text[0] = 'concept'
   labels2text[1] = 'random'
-  for i in range(2): # range(num_runs):
+  for i in range(num_runs):
     class_random = random_rep[i*N:(i+1)*N]
     x = []
     labels = []
@@ -126,18 +127,13 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500):
     
     x = np.array(x)
     labels = np.array(labels)
-
+    
     lm, acc_ = train_lm(lm, x, labels, labels2text)
 
-    #print('>>> Train LM coef:',len(lm.coef_))
-    #print(len(lm.coef_[0]))
-    
     # what they do in TCAV Been Kim : 
     # cavs.extend([-1 * lm.coef_[0],lm.coef_[0]])
     cavs.extend([lm.coef_[0]])
-    acc.extend(acc_)
-    #print(cavs)
-    #print(len(cavs))
+    acc.extend([acc_])
     
   # cavs[4] is cav-run number 4
   # cavs: list of arrays (the arrays are a list)
@@ -255,14 +251,13 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
       logits.append(logit)
       data ={'grads':grads,
             'logits':logits}
-    print('>>> working dir:',os.getcwd())
-    with open(PATH_TO_Data+'sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+layer_nr+'.pkl', 'wb') as handle:
+    with open('/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+layer_nr+'.pkl', 'wb') as handle:
       pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
   sensitivities = [] 
-  print('>>> FOR LOOP GRADS', len(grads))
+
   for cav in concept_cavs:
-    sensitivities.append([np.dot(grad, -1*cav) for grad in grads])
+    sensitivities.append([np.dot(grad, (-1)*cav) for grad in grads])
 
   sensitivities = np.array(sensitivities) # each row is all grads on one cav 
   
@@ -274,6 +269,8 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
   for i in range(num_runs):
     tcavs.append(len([s for s in sensitivities[i,:] if s<0])/len(target_text))
   
+  print('Accuracy over all:')
+  print(np.mean(acc))
   print('TCAV score for the concept: ')
   print(np.mean(tcavs),np.std(tcavs)) 
   
