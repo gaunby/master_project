@@ -51,21 +51,27 @@ class RobertaClassifier(nn.Module):
     self.grad_representation = grad_output[0]
 
   def forward(self, input_ids: torch.Tensor, attention_mask:torch.tensor, labels=None):
+    
     if labels is not None:
       loss, logits = self.roberta_classifier(input_ids=input_ids, attention_mask= attention_mask, labels=labels)
     else:
+      
       out = self.roberta_classifier(input_ids=input_ids, attention_mask=attention_mask)
+      #print('logits ? ',out[0]) - yes 
       logits = out[0]
 
     preds = torch.argmax(logits, dim=-1)  # (batch_size, )
-
+    #print('preds', preds)
     if labels is None:
+      # 'this is what we are returning: logits, preds, self.representation'
       return logits, preds, self.representation
     else:
+      print('jeg beregner nu et loss')
       loss = nn.functional.cross_entropy(logits, labels)
       return loss, logits, preds, self.representation
 
   def forward_from_representation(self, representation: torch.Tensor):
+    print('>>> running forward_from_representation')
     #classifier = nn.Sequential(self.xlnet_classifier.sequence_summary, self.xlnet_classifier.logits_proj)
     logits = self.roberta_classifier.classifier(representation)  # (batch_size, num_labels)
     

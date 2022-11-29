@@ -70,7 +70,7 @@ def get_reps(model,tokenizer, concept_examples):
   
   return concept_repres
 
-def train_lm(lm, x, y, labels2text,):
+def train_lm(lm, x, y, labels2text):
   x_train, x_test, y_train, y_test = train_test_split(
             x, y, test_size=0.33, stratify=y
         )
@@ -85,7 +85,7 @@ def train_lm(lm, x, y, labels2text,):
       idx = y_test == class_id
       
       #acc[labels2text[class_id]] = metrics.accuracy_score(y_pred[idx], y_test[idx])
-      acc = metrics.accuracy_score(y_pred[idx], y_test[idx])
+      acc = metrics.accuracy_score( y_test[idx], y_pred[idx])
       
       # overall correctness is weighted by the number of examples in this class.
       num_correct += sum(idx) * acc # acc[labels2text[class_id]]
@@ -102,21 +102,25 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500):
   acc = []
   class_concept = get_reps(model,tokenizer,concept_text)
   N = len(class_concept)
-  if len(random_rep) != num_runs*N:
+  if len(random_rep) < num_runs*N:
     print('Incorrect number of random samples.\nNeed',num_runs*N, 'but have',len(random_rep))
     return
   #####
   #####
   # build from here 
-  lm = linear_model.SGDClassifier(
-      alpha=0.01,
-      max_iter=5000,
-      tol=1e-3,
-  )
+  #lm = linear_model.SGDClassifier(
+  #    alpha=0.01,
+  #    max_iter=5000,
+  #    tol=1e-3,)
   labels2text = {}
   labels2text[0] = 'concept'
   labels2text[1] = 'random'
   for i in range(num_runs):
+    lm = linear_model.SGDClassifier(
+      alpha=0.01,
+      max_iter=5000,
+      tol=1e-3,
+      )
     class_random = random_rep[i*N:(i+1)*N]
     x = []
     labels = []
@@ -159,10 +163,13 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   attention_mask = input['attention_mask'].to(device)
   logits, _, _ = model(input_ids, attention_mask=attention_mask)
   
-  logits[0, desired_class].backward()
+  logits[0, desired_class].backward()#desired_class].backward() # must be a specific class
   grad = model.grad_representation # differs with input sample
-  
+  print('GRAD DIM', grad)
+  print('class 0\n',grad[0][0])
+
   grad = grad[0][0].cpu().numpy()#grad.sum(dim=0).squeeze().cpu().detach().numpy()
+  print('final grad', grad)
   return logits,grad
 
 #def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'random',concept_examples = random_concepts, num_runs = 10):
@@ -215,7 +222,8 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     
     num_ex_in_set = len(concept_text)
     Data = counter_set #'wikipedia_split'
-    file_name = f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+    
+    file_name =  f'tensor_{Data}_on_{layer_nr}_layer_{500}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
     file_random = PATH_TO_Data + '/'+ Data + '/' + file_name + '.pt'
 
     if os.path.exists(file_random):
@@ -255,7 +263,9 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
       pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
   sensitivities = [] 
-
+  ellen = True
+  if ellen:
+    return 
   for cav in concept_cavs:
     sensitivities.append([np.dot(grad, (-1)*cav) for grad in grads])
 

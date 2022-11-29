@@ -1,7 +1,7 @@
 
 #!/bibsub> ## General options
 ### -- specify queue --
-#BSUB -q gpuv100
+#BSUB -q gpua100
 ### -- set the job Name --
 #BSUB -J embedding_rep 
 ### -- ask for number of cores (default: 1) --
@@ -14,7 +14,7 @@
 ### -- specify that we want the job to get killed if it exceeds 3 GB per core/slot --
 #BSUB -M 32GB
 ### -- set walltime limit: hh:mm --
-#BSUB -W 24:00
+#BSUB -W 72:00
 ### -- set the email address --
 #BSUB -u s174497@student.dtu.dk
 # please uncomment the following line and put in your e-mail address,
