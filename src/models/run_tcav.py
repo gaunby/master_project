@@ -6,9 +6,22 @@ import sys
 sys.path.insert(0,'/zhome/94/5/127021/speciale/master_project')
 from src.models.hate_tcav.TCAV import get_preds_tcavs
 
-# load
-N = 300
 
+# PARAMETERS
+file_name = 'negative_layer_3_11' # name of saved file 
+N = 300 # number of target examples 
+M = 150 # number of concept examples
+
+num_random_set = 100 # number of runs/random folders
+
+concept_name = 'hate' # if not hate or news set variable later on 
+
+target_nr = 0 
+target_name = 'negative'
+
+
+# target data 
+# load
 filename = "/work3/s174498/sst2_dataset/positive"
 ds_pos = load_from_disk(filename)
 ds_pos_text = ds_pos['sentence']
@@ -21,7 +34,6 @@ pos = [ds_pos_text[i] for i in list(np.random.choice(len(ds_pos_text),N))]
 neg = [ds_neg_text[i] for i in list(np.random.choice(len(ds_neg_text),N))]
 
 # Concept data 
-M = 150
 # load hate
 datadir = '/work3/s174498/concept_random_dataset/'
 filename = 'tweet_hate/test'
@@ -52,8 +64,55 @@ ag_sport = [ag_news[i] for i in list(np.random.choice( idx_sport,M))]
 ag_buss = [ag_news[i] for i in list(np.random.choice( idx_buss,M))]
 ag_sci = [ag_news[i] for i in list(np.random.choice( idx_sci,M))]
 
+layers = [#'roberta.encoder.layer.0.output.dense',
+        #'roberta.encoder.layer.1.output.dense',
+        #'roberta.encoder.layer.2.output.dense',
+        'roberta.encoder.layer.3.output.dense',
+        'roberta.encoder.layer.4.output.dense',
+        'roberta.encoder.layer.5.output.dense',
+        'roberta.encoder.layer.6.output.dense',
+        'roberta.encoder.layer.7.output.dense',
+        'roberta.encoder.layer.8.output.dense',
+        'roberta.encoder.layer.9.output.dense',
+        'roberta.encoder.layer.10.output.dense',
+        'roberta.encoder.layer.11.output.dense'
+        ]
 
-num_random_set = 500
+
+if target_name == 'negative':
+    target_data = neg
+elif target_name == 'positive':
+    target_data = pos
+else:
+    print('wrong target data name')
+
+if concept_name == 'hate':
+    concept_data = hate #
+elif concept_name == 'news':
+    concept_data = news #
+else:
+    print('missing concet data name')
+
+# TCAV data 
+save_tcav = {}
+save_tcav[target_name] = {concept_name:0}
+
+for nr, layer in enumerate(layers):
+    _,_,TCAV, acc = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
+                                    target_text = target_data, desired_class=target_nr,
+                                    counter_set = 'wikipedia_split',
+                                    concept_text = concept_data, 
+                                    num_runs=num_random_set)
+    save_tcav[target_name][concept_name][layer] = {'TCAV':TCAV, 'acc':acc}
+
+# saving the file 
+PATH =  f"/work3/s174498/nlp_tcav_results/{file_name}.pkl"
+f = open(PATH ,"wb")
+pickle.dump(save_tcav, f)
+f.close()
+    
+
+"""
 model_layer = 'roberta.encoder.layer.11.output.dense'
 layer_nr = '11'
 logits,sensitivity,TCAV, acc = get_preds_tcavs(classifier = 'linear',model_layer=model_layer,layer_nr =layer_nr,
@@ -99,3 +158,4 @@ PATH =  f"/work3/s174498/nlp_tcav_results/{file_name}.pkl"
 f = open(PATH ,"wb")
 pickle.dump(save_tcav, f)
 f.close()
+"""
