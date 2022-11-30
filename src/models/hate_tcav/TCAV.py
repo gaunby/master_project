@@ -144,18 +144,17 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   input_ids = input['input_ids'].to(device) # idx from vocab
   
   attention_mask = input['attention_mask'].to(device)
+  
   logits, _, _ = model(input_ids, attention_mask=attention_mask)
   
   logits[0, desired_class].backward()#desired_class].backward() # must be a specific class
+  
   grad = model.grad_representation # differs with input sample
-  print('GRAD DIM', grad)
-  print('class 0\n',grad[0][0])
-
+  
   grad = grad[0][0].cpu().numpy()#grad.sum(dim=0).squeeze().cpu().detach().numpy()
-  print('final grad', grad)
+  
   return logits,grad
 
-#def get_preds_tcavs(classifier = 'toxicity',desired_class = 1,examples_set = 'random',concept_examples = random_concepts, num_runs = 10):
 def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense", layer_nr = '11',target_text = random_text,desired_class = 0,counter_set = 'wikipedia_split',concept_text = random_text, num_runs = 10):
   #returns logits, sensitivies and tcav score
   num_random_set = num_runs #num_random_set
@@ -219,19 +218,15 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
       pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
   sensitivities = [] 
-  ellen = True
-  if ellen:
-    return 
+
   for cav in concept_cavs:
     sensitivities.append([np.dot(grad, (-1)*cav) for grad in grads])
 
   sensitivities = np.array(sensitivities) # each row is all grads on one cav 
   
-  print('>>> sensitivet\n',sensitivities.shape)
-  print('>>> concetp cavs', len(concept_cavs))
   
   tcavs = []
-  print('>>> length of target text:', len(target_text))
+  
   for i in range(num_runs):
     tcavs.append(len([s for s in sensitivities[i,:] if s>0])/len(target_text))
   
