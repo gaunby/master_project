@@ -70,27 +70,16 @@ def get_reps(model,tokenizer, concept_examples):
   
   return concept_repres
 
-def train_lm(lm, x, y, labels2text):
+def train_lm(lm, x, y):
+  
   x_train, x_test, y_train, y_test = train_test_split(
-            x, y, test_size=0.33, stratify=y
-        )
+            x, y, test_size=0.33, stratify=y )
+  
   lm.fit(x_train, y_train)
   y_pred = lm.predict(x_test)
 
-  # get acc.
-  num_classes = max(y) + 1
-  num_correct = 0
-  for class_id in range(num_classes):
-      # get indices of all test data that has this class.
-      idx = y_test == class_id
-      
-      #acc[labels2text[class_id]] = metrics.accuracy_score(y_pred[idx], y_test[idx])
-      acc = metrics.accuracy_score( y_test[idx], y_pred[idx])
-      
-      # overall correctness is weighted by the number of examples in this class.
-      num_correct += sum(idx) * acc # acc[labels2text[class_id]]
-  #acc[f"overall_{run}"] = float(num_correct) / float(len(y_test))
-  acc = float(num_correct) / float(len(y_test))
+  # return the fraction of correctly classified samples.
+  acc = metrics.accuracy_score( y_test, y_pred, normalize = True)
 
   return lm, acc
 
@@ -105,13 +94,7 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500):
   if len(random_rep) < num_runs*N:
     print('Incorrect number of random samples.\nNeed',num_runs*N, 'but have',len(random_rep))
     return
-  #####
-  #####
-  # build from here 
-  #lm = linear_model.SGDClassifier(
-  #    alpha=0.01,
-  #    max_iter=5000,
-  #    tol=1e-3,)
+
   labels2text = {}
   labels2text[0] = 'concept'
   labels2text[1] = 'random'
@@ -132,7 +115,7 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500):
     x = np.array(x)
     labels = np.array(labels)
     
-    lm, acc_ = train_lm(lm, x, labels, labels2text)
+    lm, acc_ = train_lm(lm, x, labels)
 
     # what they do in TCAV Been Kim : 
     # cavs.extend([-1 * lm.coef_[0],lm.coef_[0]])
@@ -189,31 +172,6 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
   
   model = RobertaClassifier(model_type = classifier, model_layer = model_layer )
   
-  """
-  if classifier=='toxicity':
-    model = RobertaClassifier(model_folder_toxic)
-    tokenizer = RobertaTokenizerFast.from_pretrained(model_folder_toxic)
-  elif classifier=='Founta':
-    model = RobertaClassifier(model_folder_toxic)
-    #print('>>> MODEL', model)
-    #model = RobertaClassifier(model_folder_Founta)
-    tokenizer = RobertaTokenizerFast.from_pretrained(model_folder_toxic)
-  elif classifier =='EA':
-    model = RobertaClassifier(model_folder_toxic)#EA)
-    tokenizer = RobertaTokenizerFast.from_pretrained(model_folder_toxic)#EA)
-  elif classifier =='CH':
-    model = RobertaClassifier(model_folder_CH)
-    tokenizer = RobertaTokenizerFast.from_pretrained(model_folder_CH)
-  elif classifier =='CH_exp':
-    model = RobertaClassifier(model_folder_CH_explicit)
-    tokenizer = RobertaTokenizerFast.from_pretrained(model_folder_CH_explicit)  
-  elif classifier =='wiki_exp':  
-    model = RobertaClassifier(model_folder_toxic_explicit)
-    tokenizer = RobertaTokenizerFast.from_pretrained(model_folder_toxic_explicit)
-  else:
-    print('model is unknown')
-    return 
-  """
   if len(concept_text) < 100:
     print('Too few concept text examples. Must be greater than 100')
     return
@@ -239,8 +197,6 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
   print('calculating cavs...')
   model.to(device)
   concept_cavs, acc = compute_cavs(model,tokenizer, concept_text, random_rep, num_runs=num_runs)
-  
-  #concept_cavs = statistical_testing(model,tokenizer, concept_examples, num_runs=num_runs)
   
   if os.path.exists(PATH_TO_Data+'sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+layer_nr+'.pkl'):
     print('logits and grads are saved.')
