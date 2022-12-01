@@ -64,9 +64,9 @@ ag_sport = [ag_news[i] for i in list(np.random.choice( idx_sport,M))]
 ag_buss = [ag_news[i] for i in list(np.random.choice( idx_buss,M))]
 ag_sci = [ag_news[i] for i in list(np.random.choice( idx_sci,M))]
 
-layers = [#'roberta.encoder.layer.0.output.dense',
-        #'roberta.encoder.layer.1.output.dense',
-        #'roberta.encoder.layer.2.output.dense',
+layers = ['roberta.encoder.layer.0.output.dense',
+        'roberta.encoder.layer.1.output.dense',
+        'roberta.encoder.layer.2.output.dense',
         'roberta.encoder.layer.3.output.dense',
         'roberta.encoder.layer.4.output.dense',
         'roberta.encoder.layer.5.output.dense',
