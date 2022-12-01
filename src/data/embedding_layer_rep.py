@@ -11,12 +11,10 @@ from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,ToxicityDa
 
 random.seed(1234)
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+# device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 PATH_TO_Data = '/work3/s174498/concept_random_dataset/'
 Data = 'wikipedia_split'
-random_data = load_from_disk(PATH_TO_Data + Data)
-random_text = random_data['complex_sentence']
 
 def get_dataloader(X, y, tokenizer, batch_size):
   assert len(X) == len(y)
@@ -28,17 +26,17 @@ def get_dataloader(X, y, tokenizer, batch_size):
 def get_reps(model,tokenizer, concept_examples):
   #returns roberta representations of [CLS]   
   
-  batch_size = 8 # to loop over 
+  batch_size = 16 # to loop over 
   concept_labels = torch.zeros([len(concept_examples)]) #fake labels
   
   concept_repres = []
   concept_dataloader = get_dataloader(concept_examples,concept_labels,tokenizer,batch_size)
+  print('       get data loader')
   with torch.no_grad():
     for i_batch, batch in enumerate(concept_dataloader):
       input_ids = batch['input_ids']#.to(device)
       attention_mask = batch['attention_mask']#.to(device)
       _, _, representation = model(input_ids, attention_mask=attention_mask)
-      
       concept_repres.append(representation[:,0,:])
       
   concept_repres = torch.cat(concept_repres, dim=0).cpu().detach().numpy()
@@ -59,25 +57,27 @@ def create_embedding(random_text, classifier = 'linear',model_layer = "roberta.e
     return 
   
   model = RobertaClassifier(model_type = classifier, model_layer = model_layer)
-
+  print('   model loaded')
   N = num_ex_in_set
   M = num_random_set
 
   random_examples = [random_text[i][5:-1] for i in list(np.random.choice(len(random_text),N*M))]
-  
+  print('   random examples')
   random_repres = get_reps(model,tokenizer,random_examples)
   
   return random_repres
-"""
-data = random_text
-classifier = 'linear'
-model_layer = "roberta.encoder.layer.11.output.dense"
-model_layer_num = '11'
-num_random_set = 1
-num_ex_in_set = 150
-random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_{Data}_on_{model_layer_num}_{num_random_set}_sets_with_{num_ex_in_set}'
-file = PATH_TO_Data + Data + '/' + name + '.pt'
-torch.save(random_rep, file)
-"""
+#random_data = load_from_disk(PATH_TO_Data + Data)
+#random_text = random_data['complex_sentence']
+
+#data = random_text
+#classifier = 'linear'
+#model_layer = "roberta.encoder.layer.11.output.dense"
+#model_layer_num = '11'
+##num_random_set = 1
+#num_ex_in_set = 150
+#random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
+
+#name = f'tensor_{Data}_on_{model_layer_num}_{num_random_set}_sets_with_{num_ex_in_set}'
+#file = PATH_TO_Data + Data + '/' + name + '.pt'
+#torch.save(random_rep, file)
