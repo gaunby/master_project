@@ -8,7 +8,7 @@ from src.models.hate_tcav.TCAV import get_preds_tcavs
 
 
 # PARAMETERS
-file_name = 'negative_layer_3_11' # name of saved file 
+file_name = 'negative_layer_0_11' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
@@ -73,10 +73,9 @@ layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.6.output.dense',
         'roberta.encoder.layer.7.output.dense',
         'roberta.encoder.layer.8.output.dense',
-        'roberta.encoder.layer.9.output.dense',
-        'roberta.encoder.layer.10.output.dense',
-        'roberta.encoder.layer.11.output.dense'
-        ]
+        'roberta.encoder.layer.9.output.dense']
+        #'roberta.encoder.layer.10.output.dense',
+        #'roberta.encoder.layer.11.output.dense']
 
 
 if target_name == 'negative':
@@ -95,22 +94,26 @@ else:
 
 # TCAV data 
 save_tcav = {}
-save_tcav[target_name] = {concept_name:0}
+save_tcav[target_name] = {concept_name:{layers[0] :{'TCAV':0 ,'acc':0}}, 'random':{layers[0]:{'TCAV':0}}}
 
 for nr, layer in enumerate(layers):
-    _,_,TCAV, acc = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
+    print(layer)
+    print('TCAV for layer:', nr)
+    _,_,TCAV, acc, _,TCAV_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
                                     target_text = target_data, desired_class=target_nr,
                                     counter_set = 'wikipedia_split',
                                     concept_text = concept_data, 
                                     num_runs=num_random_set)
     save_tcav[target_name][concept_name][layer] = {'TCAV':TCAV, 'acc':acc}
+    save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random}
 
 # saving the file 
 PATH =  f"/work3/s174498/nlp_tcav_results/{file_name}.pkl"
 f = open(PATH ,"wb")
 pickle.dump(save_tcav, f)
 f.close()
-    
+
+print('FINISH')    
 
 """
 model_layer = 'roberta.encoder.layer.11.output.dense'
