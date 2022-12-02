@@ -42,21 +42,22 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
     
   # to plot, must massage data again 
   plot_data = {}
-  plot_concepts = []
+  plot_concepts = ['Woman','Transsexual','Intersex']# []
 
   df_result = pd.DataFrame(columns = ['TCAV score','Concept','Bottleneck'])
   # print concepts and classes with indentation
-  for concept in results[target]:
+  for concept in plot_concepts:#results[target]:
+    print('concept', concept)
     result = results[target][concept]
     
-    for bottleneck in result:        
+    for bottleneck in result:      
       if bottleneck not in df_result['Bottleneck'].unique():
-        df_random = pd.DataFrame( result[bottleneck]['TCAV'],columns=['TCAV score'])
+        df_random = pd.DataFrame(results[target]['random'][bottleneck]['TCAV'],columns=['TCAV score'])
         df_random['Concept'] = 'random'
         df_random['Bottleneck'] = bottleneck
         df_result = pd.concat([df_result, df_random], ignore_index=True)
 
-      df_concept = pd.DataFrame(results[target]['random'][bottleneck]['TCAV'],columns=['TCAV score'])
+      df_concept = pd.DataFrame( result[bottleneck]['TCAV'],columns=['TCAV score'])
       df_concept['Concept'] = concept
       df_concept['Bottleneck'] = bottleneck
       df_result = pd.concat([df_result, df_concept], ignore_index=True)
@@ -68,7 +69,7 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
       else:
           _, p_val = ttest_1samp(result[bottleneck]['TCAV'], t_test_mean)
           _, p_val_random = ttest_1samp(results[target]['random'][bottleneck]['TCAV'], t_test_mean)
-
+      
       if bottleneck not in plot_data:
         plot_data[bottleneck] = {'random_p-value':[], 'bn_vals': [], 'bn_stds': [], 'significant': [], 'p-value': [], 'concept':[]}
         plot_data[bottleneck]['random_p-value'].append(np.mean(results[target]['random'][bottleneck]['TCAV']))
@@ -79,27 +80,28 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
               plot_data[bottleneck]['random_p-value'].append('False')
           else:
               plot_data[bottleneck]['random_p-value'].append('True')
-
-        if p_val > min_p_val:
-          # statistically insignificant
-          plot_data[bottleneck]['bn_vals'].append(0.01)
-          plot_data[bottleneck]['bn_stds'].append(0)
-          plot_data[bottleneck]['significant'].append(False)
-          plot_data[bottleneck]['p-value'].append(p_val)
-          plot_data[bottleneck]['concept'].append(concept)
-            
-        else:
-          plot_data[bottleneck]['bn_vals'].append(np.mean(result[bottleneck]['TCAV']))
-          plot_data[bottleneck]['bn_stds'].append(np.std(result[bottleneck]['TCAV']))
-          plot_data[bottleneck]['significant'].append(True)
-          plot_data[bottleneck]['p-value'].append(p_val)
-          plot_data[bottleneck]['concept'].append(concept)
+      
+      if p_val > min_p_val:
+        # statistically insignificant
+        plot_data[bottleneck]['bn_vals'].append(0.01)
+        plot_data[bottleneck]['bn_stds'].append(0)
+        plot_data[bottleneck]['significant'].append(False)
+        plot_data[bottleneck]['p-value'].append(p_val)
+        plot_data[bottleneck]['concept'].append(concept)
+          
+      else:
+        plot_data[bottleneck]['bn_vals'].append(np.mean(result[bottleneck]['TCAV']))
+        plot_data[bottleneck]['bn_stds'].append(np.std(result[bottleneck]['TCAV']))
+        plot_data[bottleneck]['significant'].append(True)
+        plot_data[bottleneck]['p-value'].append(p_val)
+        plot_data[bottleneck]['concept'].append(concept)
 
   # histogram plots
   if plot_hist:
 
-    palette ={"hate": "darkblue", "news": "darkorange", "sports": "g", "random": "grey"}
-    
+    palette ={"hate": "darkblue", "news": "darkorange", "sports": "g", "random": "grey",
+    "Woman": "darkblue", "Transsexual": "darkorange", "Intersex": "g",}
+    i = 0
     for bottlenecks in df_result['Bottleneck'].unique():
       data = df_result[df_result['Bottleneck'] == bottlenecks]
       # set figure
@@ -108,7 +110,7 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
       
       # first concept
       plt.subplot(1, 3, 1);
-      ax = sns.histplot(data=data[data['Concept'].isin(['hate','random'])], x="TCAV score", hue_order =['hate','random'],
+      ax = sns.histplot(data=data[data['Concept'].isin(['Woman','random'])], x="TCAV score", hue_order =['Woman','random'],
       hue="Concept", stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
       sns.move_legend( ax, loc = "upper left", fontsize = 'x-large');
       ax.set_xlabel("TCAV score",fontsize = 'xx-large');
@@ -116,15 +118,15 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
       plt.axvline(0.5, 0,10, ls = '--', lw = 0.8, color = 'grey');
       # 2nd
       plt.subplot(1, 3, 2);
-      ax = sns.histplot(data=data[data['Concept'].isin(['hate','random'])], x="TCAV score", hue_order = ['hate','random'],
+      ax = sns.histplot(data=data[data['Concept'].isin(['Transsexual','random'])], x="TCAV score", hue_order = ['Transsexual','random'],
       hue="Concept", stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
       sns.move_legend( ax, loc = "upper left",fontsize = 'x-large');
       ax.set_xlabel("TCAV score",fontsize = 'xx-large');
       plt.axvline(0.5, 0,10, ls = '--', lw = 0.8, color = 'grey');
       # 3rd
       plt.subplot(1, 3, 3);
-      ax = sns.histplot(data=data[data['Concept'].isin(['hate','random'])], x="TCAV score", hue="Concept",
-      hue_order = ['hate','random'],stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
+      ax = sns.histplot(data=data[data['Concept'].isin(['Intersex','random'])], x="TCAV score", hue="Concept",
+      hue_order = ['Intersex','random'],stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
       sns.move_legend( ax, loc = "upper left", fontsize = 'x-large');
       ax.set_xlabel("TCAV score",fontsize = 'xx-large');
       plt.axvline(0.5, 0,10, ls = '--', lw = 0.8, color = 'grey');
@@ -133,13 +135,16 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
       plt.tight_layout();
       if save_fig:
         print('Now overwritting and saving figure')
-        plt.savefig(PATH + 'histogram_'+results[0]+'_'+bottlenecks+'.pdf')
+        fig_path = PATH + 'histogram_'+target+'_'+str(i)+'.pdf' 
+        i += 1
+        plt.savefig(fig_path)
       plt.show();
       
       
   # subtract number of random experiments
-  num_concepts = len(np.unique(plot_data[bottleneck]['concept']))
-    
+  print(plot_data[bottleneck])
+  num_concepts = len(plot_concepts)#np.unique(plot_data[bottleneck]['concept']))
+  print('num concepts', num_concepts)
   num_bottlenecks = len(plot_data)
   bar_width = 0.35
     
@@ -169,8 +174,10 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
   ax.legend(fontsize = 'large')
   fig.tight_layout()
   if save_fig:
+    i = 0 
     print('Now overwritting and saving figure')
-    plt.savefig(f'SavedResults/imagenet_tcav_results/barplot_{results[0]["target_class"]}_bonferroni_{bonferroni_nr}.pdf')
+    fig_path = PATH +'barplot_'+target+'_bonferroni_'+str(bonferroni_nr)+'.pdf'
+    plt.savefig(fig_path)
 
   # ct stores current time
   # ct = datetime.datetime.now()

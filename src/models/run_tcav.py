@@ -8,14 +8,14 @@ from src.models.hate_tcav.TCAV import get_preds_tcavs
 
 
 # PARAMETERS
-file_name = 'negative_layer_0_11' # name of saved file 
+FILE_NAME = 'negative_gender_layer_0_9' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
 num_random_set = 100 # number of runs/random folders
 
-concept_name = 'hate' # if not hate or news set variable later on 
-
+concepts = ['hate'] # if not hate or news set variable later on 
+concepts = ['Woman','Transsexual','Intersex']
 target_nr = 0 
 target_name = 'negative'
 
@@ -40,6 +40,26 @@ filename = 'tweet_hate/test'
 ds_hate = load_from_disk(datadir + filename)
 ds_hate = ds_hate['text']
 hate = [ds_hate[i] for i in list(np.random.choice(len(ds_hate),M))]
+
+# load woman 
+filefolder = 'wikipedia_20220301/gender_concepts/'
+filename = 'Woman'
+ds_woman = load_from_disk(datadir +filefolder + filename)
+ds_woman = ds_woman['text_list']
+woman = [ds_woman[i] for i in list(np.random.choice(len(ds_woman),M))]
+
+# load trans
+filename = 'Transsexual'
+ds_trans = load_from_disk(datadir +filefolder + filename)
+ds_trans = ds_trans['text_list']
+trans = [ds_trans[i] for i in list(np.random.choice(len(ds_trans),M))]
+
+# load intersex
+filename = 'Intersex'
+ds_inter = load_from_disk(datadir +filefolder + filename)
+ds_inter = ds_inter['text_list']
+inter = [ds_inter[i] for i in list(np.random.choice(len(ds_inter),M))]
+
 
 # load 20 newsgroups
 filename = '20_newsgroups/test'
@@ -85,30 +105,42 @@ elif target_name == 'positive':
 else:
     print('wrong target data name')
 
-if concept_name == 'hate':
-    concept_data = hate #
-elif concept_name == 'news':
-    concept_data = news #
-else:
-    print('missing concet data name')
 
 # TCAV data 
 save_tcav = {}
-save_tcav[target_name] = {concept_name:{layers[0] :{'TCAV':0 ,'acc':0}}, 'random':{layers[0]:{'TCAV':0}}}
+save_tcav[target_name] = {concepts[0]:{layers[0] :{'TCAV':0 ,'acc':0}}, 'random':{layers[0]:{'TCAV':0}}}
+for concept_name in concepts:
+    if concept_name == 'hate':
+        concept_data = hate #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'news':
+        concept_data = news #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'Woman':
+        concept_data = woman
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'Intersex':
+        concept_data = inter
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'Transsexual':
+        concept_data = trans
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    else:
+        print('missing concet data name')
 
-for nr, layer in enumerate(layers):
-    print(layer)
-    print('TCAV for layer:', nr)
-    _,_,TCAV, acc, _,TCAV_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
-                                    target_text = target_data, desired_class=target_nr,
-                                    counter_set = 'wikipedia_split',
-                                    concept_text = concept_data, 
-                                    num_runs=num_random_set)
-    save_tcav[target_name][concept_name][layer] = {'TCAV':TCAV, 'acc':acc}
-    save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random}
+    for nr, layer in enumerate(layers):
+        print(layer)
+        print('TCAV for layer:', nr)
+        _,_,TCAV, acc, _,TCAV_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
+                                        target_text = target_data, desired_class=target_nr,
+                                        counter_set = 'wikipedia_split',
+                                        concept_text = concept_data, 
+                                        num_runs=num_random_set)
+        save_tcav[target_name][concept_name][layer] = {'TCAV':TCAV, 'acc':acc}
+        save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random}
 
 # saving the file 
-PATH =  f"/work3/s174498/nlp_tcav_results/{file_name}.pkl"
+PATH =  f"/work3/s174498/nlp_tcav_results/{FILE_NAME}.pkl"
 f = open(PATH ,"wb")
 pickle.dump(save_tcav, f)
 f.close()
