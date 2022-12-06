@@ -20,8 +20,8 @@ layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.7.output.dense',
         'roberta.encoder.layer.8.output.dense',
         'roberta.encoder.layer.9.output.dense',
-        #'roberta.encoder.layer.10.output.dense',
-        #'roberta.encoder.layer.11.output.dense'
+        'roberta.encoder.layer.10.output.dense',
+        'roberta.encoder.layer.11.output.dense'
         ]
 
 
