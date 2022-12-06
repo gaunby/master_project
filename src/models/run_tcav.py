@@ -2,23 +2,31 @@ import numpy as np
 from datasets import load_from_disk
 import pandas as pd
 import pickle
+import random
 import sys
 sys.path.insert(0,'/zhome/94/5/127021/speciale/master_project')
-from src.models.hate_tcav.TCAV import get_preds_tcavs
+from src.models.tcav.TCAV import get_preds_tcavs
 
+random.seed(17)
 
-# PARAMETERS
-FILE_NAME = 'negative_gender_layer_0_9' # name of saved file 
+#############################################
+######## SET ALL PARAMETERS HERE ############
+#############################################
+
+FILE_NAME = 'positive_news_layer_0_11' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
-num_random_set = 100 # number of runs/random folders
+num_random_set = 500 # number of runs/random folders
 
-concepts = ['hate'] # if not hate or news set variable later on 
-concepts = ['Woman','Transsexual','Intersex']
-target_nr = 0 
-target_name = 'negative'
+concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
+concepts = ['intersex','man','transsexual','woman']
+concepts = ['news','world','sport','bussiness','science']
 
+target_nr = 0
+target_name = 'positive'
+############################################
+############################################
 
 # target data 
 # load
@@ -38,15 +46,39 @@ neg = [ds_neg_text[i] for i in list(np.random.choice(len(ds_neg_text),N))]
 datadir = '/work3/s174498/concept_random_dataset/'
 filename = 'tweet_hate/test'
 ds_hate = load_from_disk(datadir + filename)
+df_label_hate = pd.DataFrame(ds_hate['label'])
+idx_hate = df_label_hate[df_label_hate[0] == 1].index.values
 ds_hate = ds_hate['text']
-hate = [ds_hate[i] for i in list(np.random.choice(len(ds_hate),M))]
+hate = [ds_hate[i] for i in list(np.random.choice( idx_hate,M))]
+
+# load offensive
+filename = 'tweet_offensive/test'
+ds_off = load_from_disk(datadir + filename)
+df_label_off = pd.DataFrame(ds_off['label'])
+idx_off = df_label_off[df_label_off[0] == 1].index.values
+ds_off = ds_off['text']
+offen = [ds_off[i] for i in list(np.random.choice( idx_off,M))]
+
+# load irony 
+filename = 'tweet_irony/test'
+ds_irony = load_from_disk(datadir + filename)
+df_label_irony = pd.DataFrame(ds_irony['label'])
+idx_irony = df_label_irony[df_label_irony[0] == 1].index.values
+ds_irony = ds_irony['text']
+irony = [ds_irony[i] for i in list(np.random.choice( idx_irony,M))]
 
 # load woman 
 filefolder = 'wikipedia_20220301/gender_concepts/'
-filename = 'Woman'
+filename = 'woman_female'
 ds_woman = load_from_disk(datadir +filefolder + filename)
 ds_woman = ds_woman['text_list']
 woman = [ds_woman[i] for i in list(np.random.choice(len(ds_woman),M))]
+
+# load man
+filename = 'man_male'
+ds_man = load_from_disk(datadir +filefolder + filename)
+ds_man = ds_man['text_list']
+man = [ds_man[i] for i in list(np.random.choice(len(ds_man),M))]
 
 # load trans
 filename = 'Transsexual'
@@ -83,6 +115,8 @@ ag_world = [ag_news[i] for i in list(np.random.choice( idx_world,M))]
 ag_sport = [ag_news[i] for i in list(np.random.choice( idx_sport,M))]
 ag_buss = [ag_news[i] for i in list(np.random.choice( idx_buss,M))]
 ag_sci = [ag_news[i] for i in list(np.random.choice( idx_sci,M))]
+ag_news = [ag_news[i] for i in list(np.random.choice(len(ag_news),M))]
+
 
 layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.1.output.dense',
@@ -93,9 +127,9 @@ layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.6.output.dense',
         'roberta.encoder.layer.7.output.dense',
         'roberta.encoder.layer.8.output.dense',
-        'roberta.encoder.layer.9.output.dense']
-        #'roberta.encoder.layer.10.output.dense',
-        #'roberta.encoder.layer.11.output.dense']
+        'roberta.encoder.layer.9.output.dense',
+        'roberta.encoder.layer.10.output.dense',
+        'roberta.encoder.layer.11.output.dense']
 
 
 if target_name == 'negative':
@@ -113,16 +147,37 @@ for concept_name in concepts:
     if concept_name == 'hate':
         concept_data = hate #
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'news':
-        concept_data = news #
+    elif concept_name == 'offensive':
+        concept_data = offen #
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'Woman':
+    elif concept_name == 'irony':
+        concept_data = irony #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'news':
+        concept_data = ag_news #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'sport':
+        concept_data = ag_sport #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'bussiness':
+        concept_data = ag_buss #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'world':
+        concept_data = ag_world #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'science':
+        concept_data = ag_sci #
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'woman':
         concept_data = woman
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'Intersex':
+    elif concept_name == 'man':
+        concept_data = man
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'intersex':
         concept_data = inter
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'Transsexual':
+    elif concept_name == 'transsexual':
         concept_data = trans
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
     else:
