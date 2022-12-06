@@ -25,7 +25,7 @@ print('start')
 #name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
 #file = PATH_TO_Data + Data + '/' + name + '.pt'
 #torch.save(random_rep, file)
-
+"""
 # layer 11
 model_layer = "roberta.encoder.layer.11.output.dense"
 model_layer_num = '11'
@@ -49,7 +49,7 @@ file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
-
+"""
 # layer 9
 model_layer = "roberta.encoder.layer.9.output.dense"
 model_layer_num = '9'
