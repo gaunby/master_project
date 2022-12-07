@@ -103,10 +103,11 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
   if plot_hist:
 
     palette ={ "random": "grey",
-    "news": "darkblue", "world": "darkorange",'sport':'g','buddiness':'darkviolet','science':'darkred', 
+    "news": "darkblue", "world": "darkorange",'sport':'g','business':'darkviolet','science':'darkred', 
     "woman": "darkblue", "transsexual": "darkorange", "intersex": "g", "man": "darkviolet",
     'hate': "darkblue",'irony': "darkorange",'offensive':'g' }
     i = 0
+    
     nr_plots = len(plot_concepts)
     for bottlenecks in df_result['Bottleneck'].unique():
       data = df_result[df_result['Bottleneck'] == bottlenecks]

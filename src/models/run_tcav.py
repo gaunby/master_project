@@ -13,7 +13,7 @@ random.seed(17)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'positive_news_layer_0_11' # name of saved file 
+FILE_NAME = 'negative_news_layer_0_11' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
@@ -21,10 +21,10 @@ num_random_set = 500 # number of runs/random folders
 
 concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
 concepts = ['intersex','man','transsexual','woman']
-concepts = ['news','world','sport','bussiness','science']
+concepts = ['news','world','sport','business','science']
 
 target_nr = 0
-target_name = 'positive'
+target_name = 'negative'
 ############################################
 ############################################
 
@@ -159,7 +159,7 @@ for concept_name in concepts:
     elif concept_name == 'sport':
         concept_data = ag_sport #
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'bussiness':
+    elif concept_name == 'business':
         concept_data = ag_buss #
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
     elif concept_name == 'world':
