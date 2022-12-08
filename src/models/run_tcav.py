@@ -13,18 +13,18 @@ random.seed(17)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'negative_news_layer_0_11' # name of saved file 
+FILE_NAME = 'positive_woman_layer_0_11' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
 num_random_set = 500 # number of runs/random folders
 
 concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-concepts = ['intersex','man','transsexual','woman']
-concepts = ['news','world','sport','business','science']
+concepts = ['woman'] # 'intersex','man','transsexual',
+#concepts = ['news','world','sport','business','science']
 
-target_nr = 0
-target_name = 'negative'
+target_nr = 1
+target_name = 'positive'
 ############################################
 ############################################
 
@@ -186,13 +186,13 @@ for concept_name in concepts:
     for nr, layer in enumerate(layers):
         print(layer)
         print('TCAV for layer:', nr)
-        _,_,TCAV, acc, _,TCAV_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
+        _,_,TCAV, acc, _,TCAV_random, acc_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
                                         target_text = target_data, desired_class=target_nr,
                                         counter_set = 'wikipedia_split',
-                                        concept_text = concept_data, 
+                                        concept_text = concept_data, concept_name= concept_name,
                                         num_runs=num_random_set)
         save_tcav[target_name][concept_name][layer] = {'TCAV':TCAV, 'acc':acc}
-        save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random}
+        save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random,'acc':acc_random}
 
 # saving the file 
 PATH =  f"/work3/s174498/nlp_tcav_results/{FILE_NAME}.pkl"
