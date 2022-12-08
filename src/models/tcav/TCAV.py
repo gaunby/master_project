@@ -14,7 +14,7 @@ from sklearn import linear_model, metrics
 from sklearn.model_selection import train_test_split
 
 
-random.seed(100)
+random.seed(1234)
 
 PATH_TO_Data = '/work3/s174498/concept_random_dataset/'
 #PATH_TO_Model = '/work3/s174498/final/linear_head/checkpoint-1500' #'/zhome/94/5/127021/speciale/master_project/src/models/hate_tcav/models/'
@@ -29,7 +29,7 @@ random_text = random_data['complex_sentence'] # number of obs. = 989944
 # random_concepts = [random_examples[i] for i in list(np.random.choice(len(random_examples),200))]
 
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+#device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
 def get_dataloader(X, y, tokenizer, batch_size):
@@ -49,8 +49,8 @@ def get_reps(model,tokenizer, concept_examples):
   concept_dataloader = get_dataloader(concept_examples,concept_labels,tokenizer,batch_size)
   with torch.no_grad():
     for i_batch, batch in enumerate(concept_dataloader):
-      input_ids = batch['input_ids'].to(device)
-      attention_mask = batch['attention_mask'].to(device)
+      input_ids = batch['input_ids']#.to(device)
+      attention_mask = batch['attention_mask']#.to(device)
       _, _, representation = model(input_ids, attention_mask=attention_mask)
       
       concept_repres.append(representation[:,0,:])
@@ -144,9 +144,9 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   #returns logits and gradients
   input = tokenizer(sample, truncation=True,padding=True, return_tensors="pt")
   model.zero_grad()
-  input_ids = input['input_ids'].to(device) # idx from vocab
+  input_ids = input['input_ids']#.to(device) # idx from vocab
   
-  attention_mask = input['attention_mask'].to(device)
+  attention_mask = input['attention_mask']#.to(device)
   
   logits, _, _ = model(input_ids, attention_mask=attention_mask)
   
@@ -196,7 +196,7 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     print('Counter part does not have a representation for this random dataset\nCreate by running: embedding_layer_rep.py')
     return
 
-  model.to(device)
+  #model#.to(device)
   PATH_concept_cav = PATH_TO_Data+'cavs/concept/'+concept_name+'_'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
   if os.path.exists(PATH_concept_cav):
     print('cavs concept are saved.')
@@ -217,7 +217,7 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
       pickle.dump(cav_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
   # CAVS Random
-  PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+  PATH_random_cav = PATH_TO_Data+'cavs_221208/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
   if os.path.exists(PATH_random_cav):
     print('cavs random are saved.')
     with open(PATH_random_cav,'rb') as handle:
@@ -238,7 +238,7 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
 
   # Grads
   PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+str(layer_nr)+'.pkl'
-  if os.path.exists(PATH_grad):# and torch.cuda.is_available():
+  if os.path.exists(PATH_grad) and torch.cuda.is_available():
     print('logits and grads are saved.')
     with open(PATH_grad,'rb') as handle:
       data = pickle.load(handle)

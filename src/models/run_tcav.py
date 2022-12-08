@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0,'/zhome/94/5/127021/speciale/master_project')
 from src.models.tcav.TCAV import get_preds_tcavs
 
-random.seed(17)
+random.seed(175)
 
 #############################################
 ######## SET ALL PARAMETERS HERE ############
@@ -19,7 +19,7 @@ M = 150 # number of concept examples
 
 num_random_set = 500 # number of runs/random folders
 
-concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
+#concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
 concepts = ['woman'] # 'intersex','man','transsexual',
 #concepts = ['news','world','sport','business','science']
 
