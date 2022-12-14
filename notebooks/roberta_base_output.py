@@ -1,7 +1,11 @@
 import pickle 
 from transformers import RobertaTokenizer, RobertaForSequenceClassification, Trainer
 from datasets import load_from_disk 
+"""
+for sentiment analysis trained model look at 
+src/data/output_head_save.py
 
+"""
 tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 model = RobertaForSequenceClassification.from_pretrained('roberta-base',output_hidden_states = True,return_dict = True)
 
