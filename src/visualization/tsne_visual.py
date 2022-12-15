@@ -8,14 +8,14 @@ import pandas as pd
 import seaborn as sns 
 import numpy as np
 
-def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity, init, NEW_VAR , mean = True, save = False):
+def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity, init, labels_text , mean = True, save = False):
     dim_reducer = TSNE(n_components=2, init = init, perplexity = perplexity)
 
     num_layers = len(layers_to_visualize)
     n = len(np.array(labels).reshape(-1))
     label_text = np.array(['nan']*n)
-    label_text = np.where(np.array(labels).reshape(-1) == 0, label_text, NEW_VAR[0])
-    label_text = np.where(np.array(labels).reshape(-1) == 1, label_text, NEW_VAR[1])
+    label_text = np.where(np.array(labels).reshape(-1) == 0, label_text, labels_text [0])
+    label_text = np.where(np.array(labels).reshape(-1) == 1, label_text, labels_text [1])
 
     col_size = int(num_layers/2)
     fig = plt.figure(figsize=(15,col_size*3.5), constrained_layout=True) #each subplot of size 6x6, each row will hold 4 plots
