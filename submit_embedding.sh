@@ -3,7 +3,7 @@
 ### -- specify queue --
 #BSUB -q gpua100
 ### -- set the job Name --
-#BSUB -J 6_9_500_150 
+#BSUB -J 6_7_500_150
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 2
 #BSUB -R "span[hosts=1]"
@@ -14,7 +14,7 @@
 ### -- specify that we want the job to get killed if it exceeds 3 GB per core/slot --
 #BSUB -M 32GB
 ### -- set walltime limit: hh:mm --
-#BSUB -W 72:00
+#BSUB -W 24:00
 ### -- set the email address --
 #BSUB -u s174497@student.dtu.dk
 # please uncomment the following line and put in your e-mail address,

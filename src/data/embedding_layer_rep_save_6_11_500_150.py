@@ -27,72 +27,72 @@ print('start')
 #torch.save(random_rep, file)
 """
 # layer 11
-model_layer = "roberta.encoder.layer.11.output.dense"
+model_layer = "roberta.encoder.layer.11.output.dropout"
 model_layer_num = '11'
 
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 print('embedding created ', model_layer_num)
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
 
 # layer 10
-model_layer = "roberta.encoder.layer.10.output.dense"
+model_layer = "roberta.encoder.layer.10.output.dropout"
 model_layer_num = '10'
 
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 print('embedding created ', model_layer_num)
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
-"""
+
 # layer 9
-model_layer = "roberta.encoder.layer.9.output.dense"
+model_layer = "roberta.encoder.layer.9.output.dropout"
 model_layer_num = '9'
 
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 print('embedding created ', model_layer_num)
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
 
 # layer 8
-model_layer = "roberta.encoder.layer.8.output.dense"
+model_layer = "roberta.encoder.layer.8.output.dropout"
 model_layer_num = '8'
 print('start', model_layer_num)
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 print('save', model_layer_num)
 torch.save(random_rep, file)
 random_rep = 0
-
+"""
 # layer 7
-model_layer = "roberta.encoder.layer.7.output.dense"
+model_layer = "roberta.encoder.layer.7.output.dropout"
 model_layer_num = '7'
 print('start', model_layer_num)
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 print('save', model_layer_num)
 torch.save(random_rep, file)
 random_rep = 0
 
 # layer 6
-model_layer = "roberta.encoder.layer.6.output.dense"
+model_layer = "roberta.encoder.layer.6.output.dropout"
 model_layer_num = '6'
 print('start', model_layer_num)
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 print('save', model_layer_num)
 torch.save(random_rep, file)

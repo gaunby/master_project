@@ -7,7 +7,7 @@ import numpy as np
 import random
 #sys.path.insert(0, '/zhome/a6/6/127219/Speciale/master_project')
 sys.path.insert(0, '/zhome/94/5/127021/speciale/master_project')
-from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,ToxicityDataset
+from src.models.tcav.Roberta_model_data import RobertaClassifier,ToxicityDataset
 
 random.seed(1234)
 

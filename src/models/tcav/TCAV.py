@@ -158,7 +158,7 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   
   return logits,grad
 
-def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense", layer_nr = '11',target_text = random_text,desired_class = 0,counter_set = 'wikipedia_split',concept_text = random_text,concept_name = 'random', num_runs = 10):
+def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense", layer_nr = '11',target_text = random_text,desired_class = 0,counter_set = 'wikipedia_split',concept_text = random_text,concept_name = 'random', num_runs = 10, dropout = False):
   #returns logits, sensitivies and tcav score
   num_random_set = num_runs #num_random_set
   # load tokenizer 
@@ -183,10 +183,13 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     num_ex_in_set = len(concept_text)
     Data = counter_set #'wikipedia_split'
     
-    file_name =  f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
-    file_random = PATH_TO_Data + '/'+ Data + '/' + file_name + '.pt'
-
-    if os.path.exists(file_random):
+    if dropout:
+      file_name =  f'tensor_{Data}_on_{layer_nr}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+      file_random = PATH_TO_Data +  Data + '/' + file_name + '.pt'
+      random_rep = torch.load(file_random)
+    elif os.path.exists(file_random):
+      file_name =  f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+      file_random = PATH_TO_Data + Data + '/' + file_name + '.pt'
       random_rep = torch.load(file_random)
     else:
       print('Counter part does not have a representation for this model layer or does not have the correct size.\nCreate by running: embedding_layer_rep.py')
@@ -197,7 +200,11 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     return
 
   #model#.to(device)
-  PATH_concept_cav = PATH_TO_Data+'cavs/concept/'+concept_name+'_'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+  if dropout:
+    PATH_concept_cav = PATH_TO_Data+'cavs/concept/'+concept_name+'_'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+  else:
+    PATH_concept_cav = PATH_TO_Data+'cavs/concept/'+concept_name+'_'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+
   if os.path.exists(PATH_concept_cav):
     print('cavs concept are saved.')
     with open(PATH_concept_cav,'rb') as handle:
@@ -217,7 +224,11 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
       pickle.dump(cav_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
   # CAVS Random
-  PATH_random_cav = PATH_TO_Data+'cavs_221208/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+  if dropout:
+    PATH_random_cav = PATH_TO_Data+'cavs_221208/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+  else:
+    PATH_random_cav = PATH_TO_Data+'cavs_221208/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+
   if os.path.exists(PATH_random_cav):
     print('cavs random are saved.')
     with open(PATH_random_cav,'rb') as handle:
@@ -237,7 +248,11 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
       pickle.dump(cav_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
   # Grads
-  PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+str(layer_nr)+'.pkl'
+  if dropout:
+    PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_dropout_'+str(layer_nr)+'.pkl'
+  else:
+    PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+str(layer_nr)+'.pkl'
+
   if os.path.exists(PATH_grad) and torch.cuda.is_available():
     print('logits and grads are saved.')
     with open(PATH_grad,'rb') as handle:

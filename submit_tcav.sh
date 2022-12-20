@@ -1,9 +1,9 @@
 
 #!/bibsub> ## General options
 ### -- specify queue --
-#BSUB -q gpua40
+#BSUB -q gpua100
 ### -- set the job Name --
-#BSUB -J tcav_woman_sens
+#BSUB -J tcav_gender_drop
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 2
 #BSUB -R "span[hosts=1]"

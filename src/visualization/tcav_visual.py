@@ -109,11 +109,11 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
     i = 0
     
     nr_plots = len(plot_concepts)
-    for bottlenecks in df_result['Bottleneck'].unique():
+    for nr, bottlenecks in enumerate(df_result['Bottleneck'].unique()):
       data = df_result[df_result['Bottleneck'] == bottlenecks]
       # set figure
       plt.subplots(nrows=1, ncols=nr_plots, sharey=True,figsize=(15,4));
-      plt.suptitle(f'Histogram of TCAV scores for each concept in {bottlenecks}', fontsize =20);
+      plt.suptitle(f'Histogram of TCAV scores for Concepts in Layer {nr}', fontsize =20);
       for hist_nr in range(len(plot_concepts)):
       # first concept
         plt.subplot(1, nr_plots, hist_nr+1);
@@ -163,11 +163,11 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
 
   # matplotlib
   
-  fig, ax = plt.subplots(figsize = (10,6))
+  fig, ax = plt.subplots(figsize = (15,6))
   # draw all bottlenecks individually
   for i, [bn, vals] in enumerate(plot_data.items()):
     print('bn',bn)
-    label_text = f'layer {i}'
+    label_text = f'{i}' #f'layer {i}'
     bar = ax.bar(index + i * bar_width, vals['bn_vals'],
         bar_width, yerr=vals['bn_stds'],ecolor = 'grey', label=label_text, color = sns.color_palette("Paired")[i])
     # draw stars to mark bars that are stastically insignificant to 
@@ -178,11 +178,12 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
             fontdict = {'weight': 'bold', 'size': 16,
             'color': bar.patches[0].get_facecolor()})
   # set properties
-  ax.set_title('TCAV Scores for each concept and bottleneck', fontsize = 20)
-  ax.set_ylabel('TCAV Score', fontsize = 'xx-large')
+  ax.set_title('TCAV scores for Concepts and Layers', fontsize = 20)
+  ax.set_ylabel('TCAV score', fontsize = 'xx-large')
   ax.set_xticks(index + num_bottlenecks * bar_width / 2)
+  #plot_concepts = ['news','news:world','news:sport','news:business','news:science']
   ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')#fontsize = 16)
-  ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5))#, ('layer 0','layer 1','layer 2','layer 3','layer 4','layer 5','layer 6','layer 7','layer 8','layer 9','layer 10','layer 11'))
+  ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')#, ('layer 0','layer 1','layer 2','layer 3','layer 4','layer 5','layer 6','layer 7','layer 8','layer 9','layer 10','layer 11'))
   fig.tight_layout()
   if save_fig:
     i = 0 

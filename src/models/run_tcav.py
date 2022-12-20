@@ -13,14 +13,16 @@ random.seed(175)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'positive_woman_layer_0_11_sensitivities' # name of saved file 
+FILE_NAME = 'positive_gender_layer_droput_5' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
+
+DROP_OUT = True
 
 num_random_set = 500 # number of runs/random folders
 
 #concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-concepts = ['woman'] # 'intersex','man','transsexual',
+concepts = ['intersex','man','transsexual','woman']
 #concepts = ['news','world','sport','business','science']
 
 target_nr = 1
@@ -130,7 +132,20 @@ layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.9.output.dense',
         'roberta.encoder.layer.10.output.dense',
         'roberta.encoder.layer.11.output.dense']
-
+if DROP_OUT:
+    layers = [#'roberta.encoder.layer.0.output.dropout',
+            #'roberta.encoder.layer.1.output.dropout',
+            #'roberta.encoder.layer.2.output.dropout',
+            #'roberta.encoder.layer.3.output.dropout',
+            #'roberta.encoder.layer.4.output.dropout',
+            'roberta.encoder.layer.5.output.dropout',
+            #'roberta.encoder.layer.6.output.dropout',
+            #'roberta.encoder.layer.7.output.dropout',
+            #'roberta.encoder.layer.8.output.dropout',
+            #'roberta.encoder.layer.9.output.dropout',
+            #'roberta.encoder.layer.10.output.dropout',
+            #'roberta.encoder.layer.11.output.dropout'
+            ]
 
 if target_name == 'negative':
     target_data = neg
@@ -184,13 +199,15 @@ for concept_name in concepts:
         print('missing concet data name')
 
     for nr, layer in enumerate(layers):
+        nr = nr + 5
         print(layer)
         print('TCAV for layer:', nr)
         _,sens,TCAV, acc, sens_random,TCAV_random, acc_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
                                         target_text = target_data, desired_class=target_nr,
                                         counter_set = 'wikipedia_split',
                                         concept_text = concept_data, concept_name= concept_name,
-                                        num_runs=num_random_set)
+                                        num_runs=num_random_set,
+                                        dropout=DROP_OUT)
         save_tcav[target_name][concept_name][layer] = {'TCAV':TCAV, 'acc':acc, 'sensitivity':sens}
         save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random,'acc':acc_random,'sensitivities':sens_random}
 
