@@ -225,9 +225,9 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
 
   # CAVS Random
   if dropout:
-    PATH_random_cav = PATH_TO_Data+'cavs_221208/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+    PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
   else:
-    PATH_random_cav = PATH_TO_Data+'cavs_221208/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+    PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
 
   if os.path.exists(PATH_random_cav):
     print('cavs random are saved.')

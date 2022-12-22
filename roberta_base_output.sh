@@ -1,9 +1,9 @@
 
 #!/bibsub> ## General options
 ### -- specify queue --
-#BSUB -q gpua10
+#BSUB -q gpuv100
 ### -- set the job Name --
-#BSUB -J data_test_train
+#BSUB -J data_tweet_hate
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 2
 #BSUB -R "span[hosts=1]"

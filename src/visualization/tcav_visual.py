@@ -105,7 +105,8 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
     palette ={ "random": "grey",
     "news": "darkblue", "world": "darkorange",'sport':'g','business':'darkviolet','science':'darkred', 
     "woman": "darkblue", "transsexual": "darkorange", "intersex": "g", "man": "darkviolet",
-    'hate': "darkblue",'irony': "darkorange",'offensive':'g' }
+    'hate': "darkblue",'irony': "darkorange",'offensive':'g' ,
+    "gender": "darkorange",}
     i = 0
     
     nr_plots = len(plot_concepts)
@@ -181,7 +182,7 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
   ax.set_title('TCAV scores for Concepts and Layers', fontsize = 20)
   ax.set_ylabel('TCAV score', fontsize = 'xx-large')
   ax.set_xticks(index + num_bottlenecks * bar_width / 2)
-  #plot_concepts = ['news','news:world','news:sport','news:business','news:science']
+  plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
   ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')#fontsize = 16)
   ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')#, ('layer 0','layer 1','layer 2','layer 3','layer 4','layer 5','layer 6','layer 7','layer 8','layer 9','layer 10','layer 11'))
   fig.tight_layout()

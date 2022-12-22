@@ -13,7 +13,7 @@ random.seed(175)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'positive_gender_layer_droput_5' # name of saved file 
+FILE_NAME = 'positive_gender_layer_droput_0_11' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
@@ -22,11 +22,12 @@ DROP_OUT = True
 num_random_set = 500 # number of runs/random folders
 
 #concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-concepts = ['intersex','man','transsexual','woman']
+concepts = ['gender','intersex','man','woman'] # 'transsexual',
 #concepts = ['news','world','sport','business','science']
 
 target_nr = 1
 target_name = 'positive'
+
 ############################################
 ############################################
 
@@ -94,6 +95,9 @@ ds_inter = load_from_disk(datadir +filefolder + filename)
 ds_inter = ds_inter['text_list']
 inter = [ds_inter[i] for i in list(np.random.choice(len(ds_inter),M))]
 
+# Gender level I concept
+ds_gender = ds_man + ds_woman + ds_inter
+gender = [ds_gender[i] for i in list(np.random.choice(len(ds_gender),M))]
 
 # load 20 newsgroups
 filename = '20_newsgroups/test'
@@ -133,18 +137,18 @@ layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.10.output.dense',
         'roberta.encoder.layer.11.output.dense']
 if DROP_OUT:
-    layers = [#'roberta.encoder.layer.0.output.dropout',
-            #'roberta.encoder.layer.1.output.dropout',
-            #'roberta.encoder.layer.2.output.dropout',
-            #'roberta.encoder.layer.3.output.dropout',
-            #'roberta.encoder.layer.4.output.dropout',
+    layers = ['roberta.encoder.layer.0.output.dropout',
+            'roberta.encoder.layer.1.output.dropout',
+            'roberta.encoder.layer.2.output.dropout',
+            'roberta.encoder.layer.3.output.dropout',
+            'roberta.encoder.layer.4.output.dropout',
             'roberta.encoder.layer.5.output.dropout',
-            #'roberta.encoder.layer.6.output.dropout',
-            #'roberta.encoder.layer.7.output.dropout',
-            #'roberta.encoder.layer.8.output.dropout',
-            #'roberta.encoder.layer.9.output.dropout',
-            #'roberta.encoder.layer.10.output.dropout',
-            #'roberta.encoder.layer.11.output.dropout'
+            'roberta.encoder.layer.6.output.dropout',
+            'roberta.encoder.layer.7.output.dropout',
+            'roberta.encoder.layer.8.output.dropout',
+            'roberta.encoder.layer.9.output.dropout',
+            'roberta.encoder.layer.10.output.dropout',
+            'roberta.encoder.layer.11.output.dropout'
             ]
 
 if target_name == 'negative':
@@ -183,6 +187,9 @@ for concept_name in concepts:
     elif concept_name == 'science':
         concept_data = ag_sci #
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    elif concept_name == 'gender':
+        concept_data = gender
+        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
     elif concept_name == 'woman':
         concept_data = woman
         save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
@@ -199,7 +206,6 @@ for concept_name in concepts:
         print('missing concet data name')
 
     for nr, layer in enumerate(layers):
-        nr = nr + 5
         print(layer)
         print('TCAV for layer:', nr)
         _,sens,TCAV, acc, sens_random,TCAV_random, acc_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
