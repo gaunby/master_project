@@ -1,9 +1,9 @@
 
 #!/bibsub> ## General options
 ### -- specify queue --
-#BSUB -q hpc
+#BSUB -q gpuv100
 ### -- set the job Name --
-#BSUB -J 500_150_tweet_0_2
+#BSUB -J 500_150_tweet_11
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 1
 #BSUB -R "span[hosts=1]"
@@ -31,4 +31,4 @@
 # here follow the commands you want to execute
 source ~/miniconda3/bin/activate
 conda activate roberta_env
-python src/data/embedding_layer_rep_save_0_2_500_150.py
+python src/data/embedding_layer_rep_save_9_11_500_150.py

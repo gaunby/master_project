@@ -26,14 +26,14 @@ print('start')
 model_layer = "roberta.encoder.layer.11.output.dropout"
 model_layer_num = '11'
 
-random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
+random_rep = create_embedding(random_text, classifier, model_layer = model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 print('embedding created ', model_layer_num)
 name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
-
+"""
 # layer 10
 model_layer = "roberta.encoder.layer.10.output.dropout"
 model_layer_num = '10'
@@ -57,7 +57,7 @@ file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
-"""
+
 # layer 8
 model_layer = "roberta.encoder.layer.8.output.dropout"
 model_layer_num = '8'

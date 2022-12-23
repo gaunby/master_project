@@ -194,6 +194,18 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     else:
       print('Counter part does not have a representation for this model layer or does not have the correct size.\nCreate by running: embedding_layer_rep.py')
       return
+      
+  if counter_set=='tweet_random':
+    num_ex_in_set = len(concept_text)
+    Data = counter_set 
+
+    if dropout:
+      file_name =  f'tensor_{Data}_on_{layer_nr}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+      file_random = PATH_TO_Data +  Data + '/' + file_name + '.pt'
+      random_rep = torch.load(file_random)
+    else:
+      print('Counter part does not have a representation for this model layer or does not have the correct size.\nCreate by running: embedding_layer_rep.py')
+      return
 
   else:
     print('Counter part does not have a representation for this random dataset\nCreate by running: embedding_layer_rep.py')

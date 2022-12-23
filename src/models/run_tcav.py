@@ -13,20 +13,21 @@ random.seed(175)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'positive_gender_layer_droput_0_11' # name of saved file 
+FILE_NAME = 'negative_tweets_layer_droput_0_11' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
 DROP_OUT = True
+COUNTER_SET = 'tweet_random' # 'wikipedia_split' 
 
 num_random_set = 500 # number of runs/random folders
 
-#concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-concepts = ['gender','intersex','man','woman'] # 'transsexual',
+concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
+#concepts = ['gender','intersex','man','woman'] # 'transsexual',
 #concepts = ['news','world','sport','business','science']
 
-target_nr = 1
-target_name = 'positive'
+target_nr = 0
+target_name = 'negative'
 
 ############################################
 ############################################
@@ -210,7 +211,7 @@ for concept_name in concepts:
         print('TCAV for layer:', nr)
         _,sens,TCAV, acc, sens_random,TCAV_random, acc_random = get_preds_tcavs(classifier = 'linear',model_layer=layer,layer_nr =nr,
                                         target_text = target_data, desired_class=target_nr,
-                                        counter_set = 'wikipedia_split',
+                                        counter_set = COUNTER_SET,
                                         concept_text = concept_data, concept_name= concept_name,
                                         num_runs=num_random_set,
                                         dropout=DROP_OUT)
