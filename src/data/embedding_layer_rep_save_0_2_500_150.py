@@ -1,6 +1,7 @@
 import torch 
 from datasets import load_from_disk
 import sys
+import numpy as np
 
 sys.path.insert(0,'/zhome/94/5/127021/speciale/master_project')
 from src.data.embedding_layer_rep_tweet import create_embedding
@@ -20,8 +21,14 @@ print(len(random_text))
 
 data = random_text
 classifier = 'linear'
-num_random_set = 500
-num_ex_in_set = 150
+num_random_set = 300
+num_ex_in_set = 100
+
+N = num_ex_in_set
+M = num_random_set
+
+random_examples = [random_text[i] for i in list(np.random.choice(len(random_text),N*M))]
+
 print('start')
 """
 # layer 11
@@ -160,7 +167,7 @@ random_rep = 0
 model_layer = "roberta.encoder.layer.0.output.dropout"
 model_layer_num = '0'
 print('start', model_layer_num)
-random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
+random_rep = create_embedding(random_examples, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
 name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'

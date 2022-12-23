@@ -18,8 +18,8 @@ random_text = random_data['text_list']
 
 data = random_text
 classifier = 'linear'
-num_random_set = 500
-num_ex_in_set = 150
+num_random_set = 300
+num_ex_in_set = 100
 print('start')
 """
 # layer 11

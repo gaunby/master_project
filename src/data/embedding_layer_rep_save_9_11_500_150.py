@@ -18,8 +18,8 @@ random_text = random_data['text_list']
 
 data = random_text
 classifier = 'linear'
-num_random_set = 500
-num_ex_in_set = 150
+num_random_set = 300
+num_ex_in_set = 100
 print('start')
 
 # layer 11
@@ -33,7 +33,7 @@ file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
-"""
+
 # layer 10
 model_layer = "roberta.encoder.layer.10.output.dropout"
 model_layer_num = '10'
@@ -57,7 +57,7 @@ file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
-
+"""
 # layer 8
 model_layer = "roberta.encoder.layer.8.output.dropout"
 model_layer_num = '8'

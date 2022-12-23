@@ -58,12 +58,12 @@ def create_embedding(random_text, classifier = 'linear',model_layer = "roberta.e
   
   model = RobertaClassifier(model_type = classifier, model_layer = model_layer)
   print('   model loaded')
-  N = num_ex_in_set
-  M = num_random_set
+  #N = num_ex_in_set
+  #M = num_random_set
 
-  random_examples = [random_text[i] for i in list(np.random.choice(len(random_text),N*M))]
+  #random_examples = random_text # [random_text[i] for i in list(np.random.choice(len(random_text),N*M))]
   print('   random examples')
-  random_repres = get_reps(model,tokenizer,random_examples)
+  random_repres = get_reps(model,tokenizer,random_text)#random_examples)
   
   return random_repres
 

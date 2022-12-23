@@ -18,8 +18,8 @@ random_text = random_data['text_list']
 
 data = random_text
 classifier = 'linear'
-num_random_set = 500
-num_ex_in_set = 150
+num_random_set = 300
+num_ex_in_set = 100
 print('start')
 """
 # layer 11
@@ -95,36 +95,36 @@ torch.save(random_rep, file)
 random_rep = 0
 """
 # layer 5
-model_layer = "roberta.encoder.layer.5.output.dense"
+model_layer = "roberta.encoder.layer.5.output.dropout"
 model_layer_num = '5'
 print('start', model_layer_num)
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 print('save', model_layer_num)
 torch.save(random_rep, file)
 random_rep = 0
 
 # layer 4
-model_layer = "roberta.encoder.layer.4.output.dense"
+model_layer = "roberta.encoder.layer.4.output.dropout"
 model_layer_num = '4'
 print('start', model_layer_num)
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 print('save', model_layer_num)
 torch.save(random_rep, file)
 random_rep = 0
 
 # layer 3
-model_layer = "roberta.encoder.layer.3.output.dense"
+model_layer = "roberta.encoder.layer.3.output.dropout"
 model_layer_num = '3'
 print('start', model_layer_num)
 random_rep = create_embedding(random_text, classifier, model_layer, num_random_set= num_random_set, num_ex_in_set= num_ex_in_set )
 
-name = f'tensor_{Data}_on_{model_layer_num}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+name = f'tensor_{Data}_on_{model_layer_num}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}'
 file = PATH_TO_Data + Data + '/' + name + '.pt'
 print('save', model_layer_num)
 torch.save(random_rep, file)
