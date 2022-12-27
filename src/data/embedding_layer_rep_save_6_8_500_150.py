@@ -1,10 +1,13 @@
 import torch 
 from datasets import load_from_disk
 import sys
+import numpy as np
+import random
 
 sys.path.insert(0,'/zhome/94/5/127021/speciale/master_project')
 from src.data.embedding_layer_rep_tweet import create_embedding
 
+random.seed(1234)
 
 PATH_TO_Data = '/work3/s174498/concept_random_dataset/'
 #Data = 'wikipedia_split'
@@ -16,10 +19,18 @@ random_data = load_from_disk(PATH_TO_Data + Data)
 random_text = random_data['text_list']
 
 
-data = random_text
 classifier = 'linear'
 num_random_set = 300
 num_ex_in_set = 100
+
+N = num_ex_in_set
+M = num_random_set
+
+np.random.seed(N*M)
+
+random_text = [random_text[i] for i in list(np.random.choice(len(random_text),N*M))]
+
+
 print('start')
 """
 # layer 11
@@ -57,7 +68,7 @@ file = PATH_TO_Data + Data + '/' + name + '.pt'
 torch.save(random_rep, file)
 random_rep = 0
 print('save embedding ' , model_layer_num)
-"""
+
 # layer 8
 model_layer = "roberta.encoder.layer.8.output.dropout"
 model_layer_num = '8'
@@ -81,7 +92,7 @@ file = PATH_TO_Data + Data + '/' + name + '.pt'
 print('save', model_layer_num)
 torch.save(random_rep, file)
 random_rep = 0
-
+"""
 # layer 6
 model_layer = "roberta.encoder.layer.6.output.dropout"
 model_layer_num = '6'

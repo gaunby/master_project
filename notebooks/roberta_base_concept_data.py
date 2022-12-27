@@ -13,7 +13,7 @@ from src.models.transformers_modeling_roberta import RobertaForSequenceClassific
 
 
 """
-
+random.seed(123)
 checkpoint = "/work3/s174498/final/linear_head/checkpoint-1500"
 
 tokenizer = RobertaTokenizer.from_pretrained(checkpoint)
@@ -31,12 +31,14 @@ def preprocess_function(examples):
 #ds = ds.rename_column('text_list','sentence')
 #ds = ds.add_column('label',[0]*len(ds))
 #ds = ds.add_column('idx',list(range(len(ds))))
-datadir = '/work3/s174498/concept_random_dataset/tweet_hate/test'
+#datadir = '/work3/s174498/concept_random_dataset/tweet_hate/test'
+datadir = '/work3/s174498/concept_random_dataset/tweet_irony/test'
 ds = load_from_disk(datadir)
 ds = ds.filter(lambda ds: ds['label'] == 1)
 ds = ds.add_column('idx',list(range(len(ds))))
 print(len(ds))
 ds = ds.filter(lambda example, idx: idx in random.sample(range(0,len(ds)-1), 150), with_indices=True)
+print(len(ds))
 ds = ds.remove_columns(['idx'])
 ds = ds.add_column('idx',list(range(len(ds))))
 ds = ds.remove_columns(['label'])
@@ -57,10 +59,10 @@ ds_random = ds_random.rename_column('text_list','sentence')
 ds_random = ds_random.add_column('idx',list(range(len(ds),len(ds_random)+len(ds))))
 
 
-random.seed(10)
+random.seed(100)
 ds_random_1 = ds_random.filter(lambda example, idx: idx in random.sample(range(len(ds),len(ds_random)+len(ds)), len(ds)), with_indices=True)
 
-random.seed(12)
+random.seed(200)
 ds_random_2 = ds_random.filter(lambda example, idx: idx in random.sample(range(len(ds)+2,len(ds_random)+len(ds)), len(ds)), with_indices=True)
 
 ds_random_1 = ds_random_1.add_column('label',[1]*len(ds_random_1))
@@ -69,7 +71,7 @@ print(len(ds_random_1))
 print(len(ds_random_2))
 
 ds = concatenate_datasets([ds, ds_random_1,ds_random_2])
-with open(f'/work3/s174498/roberta_files/data_set_tweet_random_1_2.pickle', 'wb') as handle:
+with open(f'/work3/s174498/roberta_files/data_set_tweet_iro_random_1_2.pickle', 'wb') as handle:
     pickle.dump(ds, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 tokenized_test = ds.map(preprocess_function, batched=True)
@@ -80,7 +82,7 @@ trainer = Trainer(
 )
 
 output = trainer.predict(tokenized_test)
-with open(f'/work3/s174498/roberta_files/output_roberta_linear_tweet_random_1_2.pickle', 'wb') as handle:
+with open(f'/work3/s174498/roberta_files/output_roberta_linear_tweet_iro_random_1_2.pickle', 'wb') as handle:
     pickle.dump(output, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # avg. runtime 2 min

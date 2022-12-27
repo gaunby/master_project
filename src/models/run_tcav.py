@@ -15,12 +15,12 @@ random.seed(175)
 
 FILE_NAME = 'negative_tweets_layer_droput_0_11' # name of saved file 
 N = 300 # number of target examples 
-M = 150 # number of concept examples
+M = 100 # number of concept examples
 
 DROP_OUT = True
 COUNTER_SET = 'tweet_random' # 'wikipedia_split' 
 
-num_random_set = 500 # number of runs/random folders
+num_random_set = 300 # number of runs/random folders
 
 concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
 #concepts = ['gender','intersex','man','woman'] # 'transsexual',
