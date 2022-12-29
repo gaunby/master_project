@@ -14,7 +14,8 @@ from sklearn import linear_model, metrics
 from sklearn.model_selection import train_test_split
 
 
-random.seed(1234)
+random.seed(123456)
+np.random.seed(1234)
 
 PATH_TO_Data = '/work3/s174498/concept_random_dataset/'
 #PATH_TO_Model = '/work3/s174498/final/linear_head/checkpoint-1500' #'/zhome/94/5/127021/speciale/master_project/src/models/hate_tcav/models/'
@@ -179,10 +180,8 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     return
 
   if counter_set=='wikipedia_split':
-    
     num_ex_in_set = len(concept_text)
     Data = counter_set #'wikipedia_split'
-    
     if dropout:
       file_name =  f'tensor_{Data}_on_{layer_nr}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
       file_random = PATH_TO_Data +  Data + '/' + file_name + '.pt'
@@ -194,19 +193,19 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     else:
       print('Counter part does not have a representation for this model layer or does not have the correct size.\nCreate by running: embedding_layer_rep.py')
       return
-      
-  if counter_set=='tweet_random':
+  elif counter_set=='tweet_random':
     num_ex_in_set = len(concept_text)
     Data = counter_set 
-
+    all_data = [1,2,3,4,5,9,10,11]
     if dropout:
       file_name =  f'tensor_{Data}_on_{layer_nr}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
       file_random = PATH_TO_Data +  Data + '/' + file_name + '.pt'
       random_rep = torch.load(file_random)
+      if layer_nr in all_data:
+        random_rep = [random_rep[i] for i in list(np.random.choice(len(random_rep),num_random_set*num_ex_in_set))]
     else:
       print('Counter part does not have a representation for this model layer or does not have the correct size.\nCreate by running: embedding_layer_rep.py')
       return
-
   else:
     print('Counter part does not have a representation for this random dataset\nCreate by running: embedding_layer_rep.py')
     return
@@ -237,7 +236,10 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
 
   # CAVS Random
   if dropout:
-    PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+    if counter_set == 'wikipedia_split':
+      PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+    if counter_set == 'tweet_random':
+      PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random_TWEET.pkl'
   else:
     PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
 

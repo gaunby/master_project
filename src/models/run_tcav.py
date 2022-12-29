@@ -7,27 +7,28 @@ import sys
 sys.path.insert(0,'/zhome/94/5/127021/speciale/master_project')
 from src.models.tcav.TCAV import get_preds_tcavs
 
-random.seed(175)
+random.seed(1001)
+np.random.seed(1001)
 
 #############################################
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'negative_tweets_layer_droput_0_11' # name of saved file 
+FILE_NAME = 'positive_gender_layer_dropout_0_11' # name of saved file 
 N = 300 # number of target examples 
-M = 100 # number of concept examples
+M = 150 # number of concept examples
 
 DROP_OUT = True
-COUNTER_SET = 'tweet_random' # 'wikipedia_split' 
+COUNTER_SET = 'wikipedia_split' #  'tweet_random' #
 
-num_random_set = 300 # number of runs/random folders
+num_random_set = 500 # number of runs/random folders
 
-concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-#concepts = ['gender','intersex','man','woman'] # 'transsexual',
+#concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
+concepts = ['gender','intersex','man','woman'] # 'transsexual',
 #concepts = ['news','world','sport','business','science']
 
-target_nr = 0
-target_name = 'negative'
+target_nr = 1
+target_name = 'positive'
 
 ############################################
 ############################################
