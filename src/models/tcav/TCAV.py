@@ -90,7 +90,7 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500, rando
     lm = linear_model.SGDClassifier(
       alpha=0.01,
       max_iter=5000,
-      tol=1e-3,
+      tol=1e-3, # default 
       )
     class_random = random_rep[i*N:(i+1)*N]
     x = []
@@ -123,32 +123,22 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500, rando
   # cavs: list of arrays (the arrays are a list)
   return cavs, acc_cav
 
-# old function
-def statistical_testing(model, tokenizer, concept_examples, num_runs=10): # old function
-  #calculates CAVs
-  cavs = []
-  concept_repres = get_reps(model,tokenizer,concept_examples)
-  for i in range(num_runs):
-    concept_rep_ids = list(np.random.choice(range(len(concept_repres)), 30))
-    concept_rep = [concept_repres[i] for i in concept_rep_ids]
-    cavs.append(np.mean(concept_rep, axis = 0))
-  return cavs
 
 def get_logits_grad(model, tokenizer, sample, desired_class):
   #returns logits and gradients
   input = tokenizer(sample, truncation=True,padding=True, return_tensors="pt")
   model.zero_grad()
-  input_ids = input['input_ids']#.to(device) # idx from vocab
+  input_ids = input['input_ids'] # idx from vocab
   
-  attention_mask = input['attention_mask']#.to(device)
+  attention_mask = input['attention_mask']
   
   logits, _, _ = model(input_ids, attention_mask=attention_mask)
   
-  logits[0, desired_class].backward()#desired_class].backward() # must be a specific class
+  logits[0, desired_class].backward() # must be a specific class
   
   grad = model.grad_representation # differs with input sample
   
-  grad = grad[0][0].cpu().numpy()#grad.sum(dim=0).squeeze().cpu().detach().numpy()
+  grad = grad[0][0].cpu().numpy()
   
   return logits,grad
 
