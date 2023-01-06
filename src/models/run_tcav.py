@@ -140,17 +140,17 @@ layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.11.output.dense']
 if DROP_OUT:
     layers = ['roberta.encoder.layer.0.output.dropout',
-            'roberta.encoder.layer.1.output.dropout',
-            'roberta.encoder.layer.2.output.dropout',
-            'roberta.encoder.layer.3.output.dropout',
-            'roberta.encoder.layer.4.output.dropout',
-            'roberta.encoder.layer.5.output.dropout',
-            'roberta.encoder.layer.6.output.dropout',
-            'roberta.encoder.layer.7.output.dropout',
-            'roberta.encoder.layer.8.output.dropout',
-            'roberta.encoder.layer.9.output.dropout',
-            'roberta.encoder.layer.10.output.dropout',
-            'roberta.encoder.layer.11.output.dropout'
+            # 'roberta.encoder.layer.1.output.dropout',
+            # 'roberta.encoder.layer.2.output.dropout',
+            # 'roberta.encoder.layer.3.output.dropout',
+            # 'roberta.encoder.layer.4.output.dropout',
+            # 'roberta.encoder.layer.5.output.dropout',
+            # 'roberta.encoder.layer.6.output.dropout',
+            # 'roberta.encoder.layer.7.output.dropout',
+            # 'roberta.encoder.layer.8.output.dropout',
+            # 'roberta.encoder.layer.9.output.dropout',
+            # 'roberta.encoder.layer.10.output.dropout',
+            # 'roberta.encoder.layer.11.output.dropout'
             ]
 
 if target_name == 'negative':
@@ -220,10 +220,10 @@ for concept_name in concepts:
         save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random,'acc':acc_random,'sensitivities':sens_random}
 
 # saving the file 
-PATH =  f"/work3/s174498/nlp_tcav_results/{FILE_NAME}.pkl"
-f = open(PATH ,"wb")
-pickle.dump(save_tcav, f)
-f.close()
+# PATH =  f"/work3/s174498/nlp_tcav_results/{FILE_NAME}.pkl"
+# f = open(PATH ,"wb")
+# pickle.dump(save_tcav, f)
+# f.close()
 
 print('FINISH')    
 

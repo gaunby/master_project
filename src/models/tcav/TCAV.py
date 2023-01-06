@@ -6,7 +6,7 @@ import pickle
 import torch
 from transformers import RobertaTokenizer # Fast
 from torch.utils.data.dataloader import DataLoader
-from src.models.tcav.Roberta_model_data import RobertaClassifier,ToxicityDataset
+from src.models.tcav.Roberta_model_data import RobertaClassifier, GetDataset
 import random
 from datasets import load_from_disk
 import time
@@ -18,17 +18,10 @@ random.seed(123456)
 np.random.seed(1234)
 
 PATH_TO_Data = '/work3/s174498/concept_random_dataset/'
-#PATH_TO_Model = '/work3/s174498/final/linear_head/checkpoint-1500' #'/zhome/94/5/127021/speciale/master_project/src/models/hate_tcav/models/'
 
-#with open(PATH_TO_Data+'data/random_stopword_tweets.txt','r') as f_:
-#  random_examples= f_.read().split('\n\n')
-
-#random_concepts = random_examples[-100:]
 # load
 random_data = load_from_disk(PATH_TO_Data + 'wikipedia_split')
-random_text = random_data['complex_sentence'] # number of obs. = 989944
-# random_concepts = [random_examples[i] for i in list(np.random.choice(len(random_examples),200))]
-
+random_text = random_data['complex_sentence'] # 
 
 #device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -36,7 +29,7 @@ random_text = random_data['complex_sentence'] # number of obs. = 989944
 def get_dataloader(X, y, tokenizer, batch_size):
   assert len(X) == len(y)
   encodings = tokenizer(X, truncation=True, padding=True, return_tensors="pt")
-  dataset = ToxicityDataset(encodings, y)
+  dataset = GetDataset(encodings, y)
   dataloader = DataLoader(dataset, batch_size=batch_size)
   return dataloader
 
@@ -309,6 +302,7 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
   sensitivities_random = [] 
   
   for cav in cav_random:
+    print(np.linalg.norm(cav))
     sensitivities_random.append([np.dot(grad, (-1)*cav) for grad in grads])
   
   
