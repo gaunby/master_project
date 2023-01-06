@@ -3,7 +3,7 @@
 ### -- specify queue --
 #BSUB -q gpuv100
 ### -- set the job Name --
-#BSUB -J data_test_train
+#BSUB -J data_tweet_off
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 2
 #BSUB -R "span[hosts=1]"
@@ -31,7 +31,7 @@
 # here follow the commands you want to execute
 source ~/miniconda3/bin/activate
 conda activate roberta_env
-python notebooks/raw_nb_files/convert_raw_nb.py
-#python notebooks/roberta_base_output.py
+#python notebooks/raw_nb_files/convert_raw_nb.py
+python notebooks/roberta_base_concept_data.py
 #python src/visualization/tsne_visual_save.py
 #python src/data/sst2_test_train_data.py 

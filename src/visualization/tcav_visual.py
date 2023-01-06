@@ -6,13 +6,13 @@ import seaborn as sns
 import pandas as pd
 
 
-PATH = '/work3/s174498/nlp_tcav_results/figures/'
+
 # /zhome/94/5/127021/speciale/tcav/tcav/utils_plot.py
 # helper function to output plot and write summary data
 #def plot_results(results, random_counterpart=None, random_concepts=None, num_random_exp=100,
 #    min_p_val=0.05, alternative = 'two-sided', t_test_mean = None, bonferroni_nr = None,
 #    plot_hist = False, save_fig = False):
-def plot_results(results, target , plot_hist = False, save_fig = False, bonferroni_nr = None,min_p_val=0.05,
+def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fig = False, bonferroni_nr = None,min_p_val=0.05,
     t_test_mean = None):
   """Helper function to organize results.
   When run in a notebook, outputs a matplotlib bar plot of the
@@ -22,6 +22,9 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
   If you get unexpected output, make sure you are using the correct keywords.
   Args:
     results: dictionary of results from TCAV runs.
+    target: str of negative or positive as target class
+    plot_concept: list of concepts in resutls
+
     random_counterpart: name of the random_counterpart used, if it was used. 
     random_concepts: list of random experiments that were run. 
     num_random_exp: number of random experiments that were run.
@@ -33,7 +36,7 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
 
   if bonferroni_nr == None:
     bonferroni_nr = 1
-
+  print(PATH)
   min_p_val = min_p_val/bonferroni_nr
   # prepare data
   # dict with keys of concepts containing dict with bottlenecks
@@ -42,7 +45,7 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
     
   # to plot, must massage data again 
   plot_data = {}
-  plot_concepts = ['Woman','Transsexual','Intersex']# []
+  plot_concepts 
 
   df_result = pd.DataFrame(columns = ['TCAV score','Concept','Bottleneck'])
   # print concepts and classes with indentation
@@ -99,47 +102,54 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
   # histogram plots
   if plot_hist:
 
-    palette ={"hate": "darkblue", "news": "darkorange", "sports": "g", "random": "grey",
-    "Woman": "darkblue", "Transsexual": "darkorange", "Intersex": "g",}
+    palette ={ "random": "grey",
+    "news": "darkblue", "world": "darkorange",'sport':'g','business':'darkviolet','science':'darkred', 
+    "woman": "darkblue", "transsexual": "darkorange", "intersex": "g", "man": "darkviolet",
+    'hate': "darkblue",'irony': "darkorange",'offensive':'g' ,
+    "gender": "darkorange",}
     i = 0
-    for bottlenecks in df_result['Bottleneck'].unique():
+    
+    nr_plots = len(plot_concepts)
+    for nr, bottlenecks in enumerate(df_result['Bottleneck'].unique()):
       data = df_result[df_result['Bottleneck'] == bottlenecks]
       # set figure
-      plt.subplots(nrows=1, ncols=3, sharey=True,figsize=(15,4));
-      plt.suptitle(f'Histogram of TCAV scores for each concept in {bottlenecks}', fontsize =20);
-      
+      plt.subplots(nrows=1, ncols=nr_plots, sharey=True,figsize=(15,4));
+      plt.suptitle(f'Histogram of TCAV scores for Concepts in Layer {nr}', fontsize =20);
+      for hist_nr in range(len(plot_concepts)):
       # first concept
-      plt.subplot(1, 3, 1);
-      ax = sns.histplot(data=data[data['Concept'].isin(['Woman','random'])], x="TCAV score", hue_order =['Woman','random'],
-      hue="Concept", stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
-      sns.move_legend( ax, loc = "upper left", fontsize = 'x-large');
-      ax.set_xlabel("TCAV score",fontsize = 'xx-large');
-      ax.set_ylabel("Percent",fontsize =  'xx-large');
-      plt.axvline(0.5, 0,10, ls = '--', lw = 0.8, color = 'grey');
+        plt.subplot(1, nr_plots, hist_nr+1);
+        ax = sns.histplot(data=data[data['Concept'].isin([plot_concepts[hist_nr],'random'])], x="TCAV score", hue_order =[plot_concepts[hist_nr],'random'],
+        hue="Concept", stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
+        sns.move_legend( ax, loc = "upper left", fontsize = 'x-large');
+        ax.set_xlabel("TCAV score",fontsize = 'xx-large');
+        ax.set_ylabel("Percent",fontsize =  'xx-large');
+        plt.axvline(0.5, 0,10, ls = '--', lw = 0.8, color = 'grey');
+      """
       # 2nd
       plt.subplot(1, 3, 2);
-      ax = sns.histplot(data=data[data['Concept'].isin(['Transsexual','random'])], x="TCAV score", hue_order = ['Transsexual','random'],
+      ax = sns.histplot(data=data[data['Concept'].isin([plot_concepts[1],'random'])], x="TCAV score", hue_order = ['Transsexual','random'],
       hue="Concept", stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
       sns.move_legend( ax, loc = "upper left",fontsize = 'x-large');
       ax.set_xlabel("TCAV score",fontsize = 'xx-large');
       plt.axvline(0.5, 0,10, ls = '--', lw = 0.8, color = 'grey');
       # 3rd
       plt.subplot(1, 3, 3);
-      ax = sns.histplot(data=data[data['Concept'].isin(['Intersex','random'])], x="TCAV score", hue="Concept",
+      ax = sns.histplot(data=data[data['Concept'].isin([plot_concepts[2],'random'])], x="TCAV score", hue="Concept",
       hue_order = ['Intersex','random'],stat = 'percent', binrange = (0,1),common_norm=False, bins = 20, element="step", palette=palette);
       sns.move_legend( ax, loc = "upper left", fontsize = 'x-large');
       ax.set_xlabel("TCAV score",fontsize = 'xx-large');
       plt.axvline(0.5, 0,10, ls = '--', lw = 0.8, color = 'grey');
-      
+      """
       # finish figure
       plt.tight_layout();
       if save_fig:
         print('Now overwritting and saving figure')
-        fig_path = PATH + 'histogram_'+target+'_'+str(i)+'.pdf' 
+        fig_path = PATH + 'histogram_'+target+'_'+''.join(plot_concepts)+'_'+str(i)+'.pdf' 
         i += 1
         plt.savefig(fig_path)
       plt.show();
-      
+  
+  
       
   # subtract number of random experiments
   print(plot_data[bottleneck])
@@ -154,11 +164,13 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
 
   # matplotlib
   
-  fig, ax = plt.subplots(figsize = (10,6))
+  fig, ax = plt.subplots(figsize = (15,6))
   # draw all bottlenecks individually
   for i, [bn, vals] in enumerate(plot_data.items()):
+    print('bn',bn)
+    label_text = f'{i}' #f'layer {i}'
     bar = ax.bar(index + i * bar_width, vals['bn_vals'],
-        bar_width, yerr=vals['bn_stds'],ecolor = 'grey', label=bn, color = sns.color_palette("Paired")[i])
+        bar_width, yerr=vals['bn_stds'],ecolor = 'grey', label=label_text, color = sns.color_palette("Paired")[i])
     # draw stars to mark bars that are stastically insignificant to 
     # show them as different from others
     for j, significant in enumerate(vals['significant']):
@@ -167,16 +179,19 @@ def plot_results(results, target , plot_hist = False, save_fig = False, bonferro
             fontdict = {'weight': 'bold', 'size': 16,
             'color': bar.patches[0].get_facecolor()})
   # set properties
-  ax.set_title('TCAV Scores for each concept and bottleneck', fontsize = 20)
-  ax.set_ylabel('TCAV Score', fontsize = 'xx-large')
+  ax.set_title('TCAV scores for Concepts and Layers', fontsize = 20)
+  ax.set_ylabel('TCAV score', fontsize = 'xx-large')
   ax.set_xticks(index + num_bottlenecks * bar_width / 2)
+  
+  plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
+  
   ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')#fontsize = 16)
-  ax.legend(fontsize = 'large')
+  ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')#, ('layer 0','layer 1','layer 2','layer 3','layer 4','layer 5','layer 6','layer 7','layer 8','layer 9','layer 10','layer 11'))
   fig.tight_layout()
   if save_fig:
     i = 0 
     print('Now overwritting and saving figure')
-    fig_path = PATH +'barplot_'+target+'_bonferroni_'+str(bonferroni_nr)+'.pdf'
+    fig_path = PATH +'barplot_'+target+'_'+''.join(plot_concepts)+'_bonferroni_'+str(bonferroni_nr)+'.pdf'
     plt.savefig(fig_path)
 
   # ct stores current time

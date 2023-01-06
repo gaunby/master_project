@@ -6,7 +6,7 @@ import pickle
 import torch
 from transformers import RobertaTokenizer # Fast
 from torch.utils.data.dataloader import DataLoader
-from src.models.tcav.Roberta_model_data import RobertaClassifier,ToxicityDataset
+from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,GetDataset
 import random
 from datasets import load_from_disk
 import time
@@ -14,28 +14,22 @@ from sklearn import linear_model, metrics
 from sklearn.model_selection import train_test_split
 
 
-random.seed(100)
+random.seed(123456)
+np.random.seed(1234)
 
 PATH_TO_Data = '/work3/s174498/concept_random_dataset/'
-#PATH_TO_Model = '/work3/s174498/final/linear_head/checkpoint-1500' #'/zhome/94/5/127021/speciale/master_project/src/models/hate_tcav/models/'
 
-#with open(PATH_TO_Data+'data/random_stopword_tweets.txt','r') as f_:
-#  random_examples= f_.read().split('\n\n')
-
-#random_concepts = random_examples[-100:]
 # load
 random_data = load_from_disk(PATH_TO_Data + 'wikipedia_split')
-random_text = random_data['complex_sentence'] # number of obs. = 989944
-# random_concepts = [random_examples[i] for i in list(np.random.choice(len(random_examples),200))]
+random_text = random_data['complex_sentence'] # 
 
-
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+#device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
 def get_dataloader(X, y, tokenizer, batch_size):
   assert len(X) == len(y)
   encodings = tokenizer(X, truncation=True, padding=True, return_tensors="pt")
-  dataset = ToxicityDataset(encodings, y)
+  dataset = GetDataset(encodings, y)
   dataloader = DataLoader(dataset, batch_size=batch_size)
   return dataloader
 
@@ -49,8 +43,8 @@ def get_reps(model,tokenizer, concept_examples):
   concept_dataloader = get_dataloader(concept_examples,concept_labels,tokenizer,batch_size)
   with torch.no_grad():
     for i_batch, batch in enumerate(concept_dataloader):
-      input_ids = batch['input_ids'].to(device)
-      attention_mask = batch['attention_mask'].to(device)
+      input_ids = batch['input_ids']#.to(device)
+      attention_mask = batch['attention_mask']#.to(device)
       _, _, representation = model(input_ids, attention_mask=attention_mask)
       
       concept_repres.append(representation[:,0,:])
@@ -68,18 +62,18 @@ def train_lm(lm, x, y):
   y_pred = lm.predict(x_test)
 
   # return the fraction of correctly classified samples.
-  acc = metrics.accuracy_score( y_test, y_pred, normalize = True)
+  acc_train = metrics.accuracy_score( y_test, y_pred, normalize = True)
 
-  return lm, acc
+  return lm, acc_train
 
 
 def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500, random_run = False):
   #calculates CAVs
   # num_runs: should be num_random_set
   cavs = []
-  acc = []
+  acc_cav = []
   N = int(len(random_rep)/num_runs)
-  print('CAVS:',N)
+  print('Number ex (in each class) to compute CAVs on:',N)
 
   if not random_run:
     class_concept = get_reps(model,tokenizer,concept_text)
@@ -92,7 +86,7 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500, rando
   labels2text = {}
   labels2text[0] = 'concept'
   labels2text[1] = 'random'
-  for i in range(num_runs-1):
+  for i in range(num_runs):
     lm = linear_model.SGDClassifier(
       alpha=0.01,
       max_iter=5000,
@@ -120,15 +114,14 @@ def compute_cavs(model, tokenizer, concept_text, random_rep, num_runs=500, rando
     labels = np.array(labels)
     
     lm, acc_ = train_lm(lm, x, labels)
-
     # what they do in TCAV Been Kim : 
     # cavs.extend([-1 * lm.coef_[0],lm.coef_[0]])
     cavs.extend([lm.coef_[0]])
-    acc.extend([acc_])
+    acc_cav.extend([acc_])
     
   # cavs[4] is cav-run number 4
   # cavs: list of arrays (the arrays are a list)
-  return cavs, acc
+  return cavs, acc_cav
 
 # old function
 def statistical_testing(model, tokenizer, concept_examples, num_runs=10): # old function
@@ -145,9 +138,9 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   #returns logits and gradients
   input = tokenizer(sample, truncation=True,padding=True, return_tensors="pt")
   model.zero_grad()
-  input_ids = input['input_ids'].to(device) # idx from vocab
+  input_ids = input['input_ids']#.to(device) # idx from vocab
   
-  attention_mask = input['attention_mask'].to(device)
+  attention_mask = input['attention_mask']#.to(device)
   
   logits, _, _ = model(input_ids, attention_mask=attention_mask)
   
@@ -159,7 +152,7 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   
   return logits,grad
 
-def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense", layer_nr = '11',target_text = random_text,desired_class = 0,counter_set = 'wikipedia_split',concept_text = random_text, num_runs = 10):
+def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense", layer_nr = '11',target_text = random_text,desired_class = 0,counter_set = 'wikipedia_split',concept_text = random_text,concept_name = 'random', num_runs = 10, dropout = False):
   #returns logits, sensitivies and tcav score
   num_random_set = num_runs #num_random_set
   # load tokenizer 
@@ -180,28 +173,69 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     return
 
   if counter_set=='wikipedia_split':
-    
     num_ex_in_set = len(concept_text)
     Data = counter_set #'wikipedia_split'
-    
-    file_name =  f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
-    file_random = PATH_TO_Data + '/'+ Data + '/' + file_name + '.pt'
-
-    if os.path.exists(file_random):
+    if dropout:
+      file_name =  f'tensor_{Data}_on_{layer_nr}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+      file_random = PATH_TO_Data +  Data + '/' + file_name + '.pt'
+      random_rep = torch.load(file_random)
+    elif os.path.exists(file_random):
+      file_name =  f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+      file_random = PATH_TO_Data + Data + '/' + file_name + '.pt'
       random_rep = torch.load(file_random)
     else:
       print('Counter part does not have a representation for this model layer or does not have the correct size.\nCreate by running: embedding_layer_rep.py')
       return
-
+  elif counter_set=='tweet_random':
+    num_ex_in_set = len(concept_text)
+    Data = counter_set 
+    all_data = [1,2,3,4,5,9,10,11]
+    if dropout:
+      file_name =  f'tensor_{Data}_on_{layer_nr}_layer_dropout_{num_random_set}_sets_with_{num_ex_in_set}' # f'tensor_{Data}_on_{layer_nr}_layer_{num_random_set}_sets_with_{num_ex_in_set}'
+      file_random = PATH_TO_Data +  Data + '/' + file_name + '.pt'
+      random_rep = torch.load(file_random)
+      if layer_nr in all_data:
+        random_rep = [random_rep[i] for i in list(np.random.choice(len(random_rep),num_random_set*num_ex_in_set))]
+    else:
+      print('Counter part does not have a representation for this model layer or does not have the correct size.\nCreate by running: embedding_layer_rep.py')
+      return
   else:
     print('Counter part does not have a representation for this random dataset\nCreate by running: embedding_layer_rep.py')
     return
 
-  print('calculating concept cavs...')
-  model.to(device)
-  concept_cavs, acc = compute_cavs(model,tokenizer, concept_text, random_rep, num_runs=num_runs)
+  #model#.to(device)
+  if dropout:
+    PATH_concept_cav = PATH_TO_Data+'cavs/concept/'+concept_name+'_'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+  else:
+    PATH_concept_cav = PATH_TO_Data+'cavs/concept/'+concept_name+'_'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+
+  if os.path.exists(PATH_concept_cav):
+    print('cavs concept are saved.')
+    with open(PATH_concept_cav,'rb') as handle:
+      data = pickle.load(handle)
+    concept_cavs = data['cavs']
+    acc = data['acc']
+    print('number of concept cavs:',len(concept_cavs))
+  else:
+    print('calculating concept cavs...')
+    concept_cavs = []
+    acc = []
+    cavs_out, acc_out =  compute_cavs(model,tokenizer, concept_text, random_rep, num_runs=num_runs)
+    concept_cavs.extend(cavs_out)
+    acc.extend(acc_out)
+    cav_data ={'cavs':concept_cavs, 'acc':acc}
+    with open(PATH_concept_cav, 'wb') as handle:
+      pickle.dump(cav_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
   # CAVS Random
-  PATH_random_cav = PATH_TO_Data+'cavs/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_random.pkl'
+  if dropout:
+    if counter_set == 'wikipedia_split':
+      PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+    if counter_set == 'tweet_random':
+      PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random_TWEET.pkl'
+  else:
+    PATH_random_cav = PATH_TO_Data+'cavs/random/'+classifier+ '_classifier_on_layer_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
+
   if os.path.exists(PATH_random_cav):
     print('cavs random are saved.')
     with open(PATH_random_cav,'rb') as handle:
@@ -213,16 +247,20 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     print('calculating random cavs...')
     cav_random = []
     acc_random = []
-    cav_random, acc_random =  compute_cavs(model,tokenizer, concept_text, random_rep, num_runs=num_runs, random_run = True)
-    cav_random.append(cav_random)
-    acc_random.append(acc_random)
+    cav_out, acc_out =  compute_cavs(model,tokenizer, concept_text, random_rep, num_runs=num_runs, random_run = True)
+    cav_random.extend(cav_out)
+    acc_random.extend(acc_out)
     cav_data ={'cavs':cav_random, 'acc':acc_random}
     with open(PATH_random_cav, 'wb') as handle:
       pickle.dump(cav_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
   # Grads
-  PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+str(layer_nr)+'.pkl'
-  if os.path.exists(PATH_grad):
+  if dropout:
+    PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_dropout_'+str(layer_nr)+'.pkl'
+  else:
+    PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+str(layer_nr)+'.pkl'
+
+  if os.path.exists(PATH_grad) and torch.cuda.is_available():
     print('logits and grads are saved.')
     with open(PATH_grad,'rb') as handle:
       data = pickle.load(handle)
@@ -243,17 +281,18 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
       pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
   sensitivities_concept = [] 
-
+  print('number of concept cavs:',len(concept_cavs))
   for cav in concept_cavs:
     sensitivities_concept.append([np.dot(grad, (-1)*cav) for grad in grads])
-
+  
   sensitivities_concept = np.array(sensitivities_concept) # each row is all grads on one cav 
   
   tcavs_concept = []
-  
-  for i in range(num_runs-1):
+  print('sens shape:', sensitivities_concept.shape)
+  for i in range(num_runs):
     tcavs_concept.append(len([s for s in sensitivities_concept[i,:] if s>0])/len(target_text))
   
+  print('number tcavs concept:',len(tcavs_concept))
   print('Accuracy over all:')
   print(np.mean(acc))
   print('TCAV score for the concept: ')
@@ -262,20 +301,22 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
 
   sensitivities_random = [] 
   
-  for cav in cav_random[:-1]:
-    #print(cav)
-    #print('cav len',len(cav))
+  for cav in cav_random:
+    print(np.linalg.norm(cav))
     sensitivities_random.append([np.dot(grad, (-1)*cav) for grad in grads])
-
+  
+  
   sensitivities_random = np.array(sensitivities_random) # each row is all grads on one cav 
+  print('sen random shape:',sensitivities_random.shape)
   
   tcavs_random = []
   
-  for i in range(num_runs-1):
+  for i in range(num_runs):
     tcavs_random.append(len([s for s in sensitivities_random[i,:] if s>0])/len(target_text))
   
+  print('number tcavs random:',len(tcavs_random))
   print('Accuracy over all:')
-  #print(np.mean(acc_random))
+  print(np.mean(acc_random))
   print('TCAV score for the concept: ')
   print(np.mean(tcavs_random),np.std(tcavs_random))   
-  return logits, sensitivities_concept, tcavs_concept, acc, sensitivities_random, tcavs_random
+  return logits, sensitivities_concept, tcavs_concept, acc, sensitivities_random, tcavs_random, acc_random

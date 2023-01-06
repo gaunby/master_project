@@ -1,20 +1,15 @@
 
 #!/bibsub> ## General options
 ### -- specify queue --
-#BSUB -q gpua100
+#BSUB -q hpc
 ### -- set the job Name --
-#BSUB -J 6_9_500_150 
-### -- ask for number of cores (default: 1) --
-#BSUB -n 2
-#BSUB -R "span[hosts=1]"
-### -- specify that the cores must be on the same host --
-#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -J 300_100_tweet_6
 ### -- specify that we need 2GB of memory per core/slot --
 #BSUB -R "rusage[mem=16GB]"
 ### -- specify that we want the job to get killed if it exceeds 3 GB per core/slot --
 #BSUB -M 32GB
 ### -- set walltime limit: hh:mm --
-#BSUB -W 72:00
+#BSUB -W 24:00
 ### -- set the email address --
 #BSUB -u s174497@student.dtu.dk
 # please uncomment the following line and put in your e-mail address,
@@ -31,4 +26,4 @@
 # here follow the commands you want to execute
 source ~/miniconda3/bin/activate
 conda activate roberta_env
-python src/data/embedding_layer_rep_save_6_11_500_150.py
+python src/data/embedding_layer_rep_save_6_8_500_150.py

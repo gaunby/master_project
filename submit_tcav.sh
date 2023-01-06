@@ -3,7 +3,7 @@
 ### -- specify queue --
 #BSUB -q gpua40
 ### -- set the job Name --
-#BSUB -J tcav_run 
+#BSUB -J tcav_cav_test
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 2
 #BSUB -R "span[hosts=1]"

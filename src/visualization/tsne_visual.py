@@ -8,14 +8,14 @@ import pandas as pd
 import seaborn as sns 
 import numpy as np
 
-def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity, init, mean = True, save = False):
+def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualize, perplexity, init, labels_text , mean = True, save = False):
     dim_reducer = TSNE(n_components=2, init = init, perplexity = perplexity)
 
     num_layers = len(layers_to_visualize)
     n = len(np.array(labels).reshape(-1))
     label_text = np.array(['nan']*n)
-    label_text = np.where(np.array(labels).reshape(-1) == 0, label_text, 'neg')
-    label_text = np.where(np.array(labels).reshape(-1) == 1, label_text, 'pos')
+    label_text = np.where(np.array(labels).reshape(-1) == 0, label_text, labels_text [0])
+    label_text = np.where(np.array(labels).reshape(-1) == 1, label_text, labels_text [1])
 
     col_size = int(num_layers/2)
     fig = plt.figure(figsize=(15,col_size*3.5), constrained_layout=True) #each subplot of size 6x6, each row will hold 4 plots
@@ -23,7 +23,8 @@ def visualize_layerwise_embeddings(hidden_states,labels,title,layers_to_visualiz
     ax = [fig.add_subplot(col_size,2,i+1) for i in range(num_layers)]
     
     palette ={0:sns.color_palette("Paired")[0], 1:sns.color_palette("Paired")[6],
-                'neg':sns.color_palette("Paired")[1], 'pos':sns.color_palette("Paired")[7]}
+                'neg':sns.color_palette("Paired")[1], 'pos':sns.color_palette("Paired")[7],
+                'random':sns.color_palette("Paired")[1], 'woman':sns.color_palette("Paired")[7]}
 
     labels = np.array(labels).reshape(-1)
 
