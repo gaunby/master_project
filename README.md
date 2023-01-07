@@ -1,5 +1,5 @@
 
-Master Thesis Project for Maria Fogh and Ellen Jørgensen 
+The TCAV method in a NLP setting
 ==============================
 
 This project is an implementation of the TCAV method from Been Kim https://arxiv.org/abs/1711.11279 .
