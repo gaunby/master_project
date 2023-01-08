@@ -14,21 +14,21 @@ np.random.seed(1001)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'positive_gender_layer_dropout_0_11' # name of saved file 
+FILE_NAME = 'negative_tweets_layer_dropout_0_11_probs' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
 DROP_OUT = True
-COUNTER_SET = 'wikipedia_split' #  'tweet_random' #
+COUNTER_SET = 'tweet_random' # 'wikipedia_split' #  
 
 num_random_set = 500 # number of runs/random folders
 
-#concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-concepts = ['gender','intersex','man','woman'] # 'transsexual',
+concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
+#concepts = ['gender','intersex','man','woman'] # 'transsexual',
 #concepts = ['news','world','sport','business','science']
 
-target_nr = 1
-target_name = 'positive'
+target_nr = 0
+target_name = 'negative'
 
 ############################################
 ############################################
@@ -220,10 +220,10 @@ for concept_name in concepts:
         save_tcav[target_name]['random'][layer] = {'TCAV':TCAV_random,'acc':acc_random,'sensitivities':sens_random}
 
 # saving the file 
-# PATH =  f"/work3/s174498/nlp_tcav_results/{FILE_NAME}.pkl"
-# f = open(PATH ,"wb")
-# pickle.dump(save_tcav, f)
-# f.close()
+PATH =  f"/work3/s174498/nlp_tcav_results/{FILE_NAME}.pkl"
+f = open(PATH ,"wb")
+pickle.dump(save_tcav, f)
+f.close()
 
 print('FINISH')    
 

@@ -142,12 +142,31 @@ def get_logits_grad(model, tokenizer, sample, desired_class):
   
   return logits,grad
 
+def get_probs_grad(model, tokenizer, sample, desired_class):
+  #returns probs and gradients
+  input = tokenizer(sample, truncation=True,padding=True, return_tensors="pt")
+  model.zero_grad()
+  input_ids = input['input_ids'] # idx from vocab
+  
+  attention_mask = input['attention_mask']
+  
+  probs, _, _ = model(input_ids, attention_mask=attention_mask)
+  
+  probs[0, desired_class].backward() # must be a specific class
+  
+  grad = model.grad_representation # differs with input sample
+  
+  grad = grad[0][0].cpu().numpy()
+  
+  return probs,grad
+
+
 def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.11.output.dense", layer_nr = '11',target_text = random_text,desired_class = 0,counter_set = 'wikipedia_split',concept_text = random_text,concept_name = 'random', num_runs = 10, dropout = False):
   #returns logits, sensitivies and tcav score
   num_random_set = num_runs #num_random_set
   # load tokenizer 
   if classifier == 'linear':
-    folder = '/work3/s174498/final/linear_head/checkpoint-1500'
+    folder = '/work3/s174498/final/Prob_linear_head/checkpoint-2500' #'/work3/s174498/final/linear_head/checkpoint-1500'
     tokenizer = RobertaTokenizer.from_pretrained(folder)
   elif classifier == 'original':
     folder = '/work3/s174498/final/original_head/checkpoint-500'
@@ -193,7 +212,7 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     print('Counter part does not have a representation for this random dataset\nCreate by running: embedding_layer_rep.py')
     return
 
-  #model#.to(device)
+  # CAVS concept
   if dropout:
     PATH_concept_cav = PATH_TO_Data+'cavs/concept/'+concept_name+'_'+classifier+ '_classifier_on_layer_dropout_' + str(layer_nr)+'_with_'+str(num_runs)+'random.pkl'
   else:
@@ -246,7 +265,8 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
 
   # Grads
   if dropout:
-    PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_dropout_'+str(layer_nr)+'.pkl'
+    #PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_dropout_'+str(layer_nr)+'.pkl'
+    PATH_grad = '/work3/s174498/sst2_dataset/grads_probs/'+classifier+'_class_'+str(desired_class)+'_layer_dropout_'+str(layer_nr)+'.pkl'
   else:
     PATH_grad = '/work3/s174498/sst2_dataset/grads_logits/'+classifier+'_class_'+str(desired_class)+'_layer_'+str(layer_nr)+'.pkl'
 
@@ -255,18 +275,18 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     with open(PATH_grad,'rb') as handle:
       data = pickle.load(handle)
     grads = data['grads']
-    logits = data['logits']
+    probs = data['probs'] #data['logits']
   else:
     print('>>> calculating logits and grads...')
-    logits = []
+    probs = []
     grads = []
     for sample in target_text:
-      logit,grad = get_logits_grad(model, tokenizer, sample, desired_class)
+      prob,grad = get_probs_grad(model, tokenizer, sample, desired_class) #get_logits_grad(model, tokenizer, sample, desired_class)
 
       grads.append(grad)
-      logits.append(logit)
+      probs.append(prob)
       data ={'grads':grads,
-            'logits':logits}
+            'probs':probs}
     with open(PATH_grad, 'wb') as handle:
       pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
@@ -309,4 +329,4 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
   print(np.mean(acc_random))
   print('TCAV score for the concept: ')
   print(np.mean(tcavs_random),np.std(tcavs_random))   
-  return logits, sensitivities_concept, tcavs_concept, acc, sensitivities_random, tcavs_random, acc_random
+  return probs, sensitivities_concept, tcavs_concept, acc, sensitivities_random, tcavs_random, acc_random
