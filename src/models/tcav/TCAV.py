@@ -6,7 +6,7 @@ import pickle
 import torch
 from transformers import RobertaTokenizer # Fast
 from torch.utils.data.dataloader import DataLoader
-from src.models.tcav.Roberta_model_data import RobertaClassifier, GetDataset
+from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,GetDataset
 import random
 from datasets import load_from_disk
 import time

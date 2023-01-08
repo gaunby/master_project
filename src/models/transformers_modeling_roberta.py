@@ -1253,13 +1253,14 @@ class RobertaForSequenceClassification_Linear(RobertaPreTrainedModel):
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput_Linear(
                 loss=loss,
-                logits=logits,
+                logits=m(logits),
                 hidden_states=outputs.hidden_states,
                 sequence_output = sequence_output, 
                 attentions=outputs.attentions
@@ -1357,13 +1358,14 @@ class RobertaForSequenceClassification_Original(RobertaPreTrainedModel):
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput_Original(
                 loss=loss,
-                logits=logits,
+                logits=m(logits),
                 hidden_states=outputs.hidden_states,
                 sequence_output = sequence_output,
                 logits_dense = logits_dense,
@@ -1436,9 +1438,9 @@ class RobertaForSequenceClassification_fromTransformersLinear(RobertaPreTrainedM
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
         )
-        sequence_output = outputs[0]
+        sequence_output = outputs[0] # last_hidden_state from Roberta
         logits = self.classifier(sequence_output)
-        
+
         loss = None
         if labels is not None:
             if self.config.problem_type is None:
@@ -1463,13 +1465,14 @@ class RobertaForSequenceClassification_fromTransformersLinear(RobertaPreTrainedM
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+        
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput(
                 loss=loss,
-                logits=logits,
+                logits= m(logits),
                 hidden_states=outputs.hidden_states,
                 attentions=outputs.attentions
             )
@@ -1567,13 +1570,14 @@ class RobertaForSequenceClassification_fromTransformers(RobertaPreTrainedModel):
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput(
                 loss=loss,
-                logits=logits,
+                logits=m(logits),
                 hidden_states=outputs.hidden_states,
                 attentions=outputs.attentions
             )
