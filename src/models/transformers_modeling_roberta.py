@@ -1253,13 +1253,14 @@ class RobertaForSequenceClassification_Linear(RobertaPreTrainedModel):
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput_Linear(
                 loss=loss,
-                logits=logits,
+                logits=m(logits),
                 hidden_states=outputs.hidden_states,
                 sequence_output = sequence_output, 
                 attentions=outputs.attentions
@@ -1357,13 +1358,14 @@ class RobertaForSequenceClassification_Original(RobertaPreTrainedModel):
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput_Original(
                 loss=loss,
-                logits=logits,
+                logits=m(logits),
                 hidden_states=outputs.hidden_states,
                 sequence_output = sequence_output,
                 logits_dense = logits_dense,
@@ -1385,7 +1387,6 @@ class RobertaForSequenceClassification_fromTransformersLinear(RobertaPreTrainedM
     def __init__(self, config):
         super().__init__(config)
         self.num_labels = config.num_labels
-        print(self.num_labels)
         self.config = config
 
         self.roberta = RobertaModel(config, add_pooling_layer=False)
@@ -1425,7 +1426,6 @@ class RobertaForSequenceClassification_fromTransformersLinear(RobertaPreTrainedM
             `config.num_labels > 1` a classification loss is computed (Cross-Entropy).
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-        print('return_dict', return_dict)
 
         outputs = self.roberta(
             input_ids,
@@ -1440,14 +1440,9 @@ class RobertaForSequenceClassification_fromTransformersLinear(RobertaPreTrainedM
         )
         sequence_output = outputs[0] # last_hidden_state from Roberta
         logits = self.classifier(sequence_output)
-        print('classifier logits', logits)
 
         loss = None
         if labels is not None:
-            print('Not none')
-            print('num_labels: ', self.num_labels)
-            print('problem_type: ', self.config.problem_type)
-            print('labels', labels)
             if self.config.problem_type is None:
                 if self.num_labels == 1:
                     self.config.problem_type = "regression"
@@ -1463,26 +1458,21 @@ class RobertaForSequenceClassification_fromTransformersLinear(RobertaPreTrainedM
                 else:
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                # YES
                 loss_fct = CrossEntropyLoss()
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-                print('loss', loss)
-                print('logits', logits)
-                print(logits.view(-1, self.num_labels))
-                print(logits.view(-1, 1))
-                print(labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss()
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+        
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput(
                 loss=loss,
-                logits=logits,
+                logits= m(logits),
                 hidden_states=outputs.hidden_states,
                 attentions=outputs.attentions
             )
@@ -1580,13 +1570,14 @@ class RobertaForSequenceClassification_fromTransformers(RobertaPreTrainedModel):
                 loss = loss_fct(logits, labels)
         
         if not return_dict:
-                print("not return_dict", return_dict)
                 output = (logits,) + outputs[2:]
                 return ((loss,) + output) if loss is not None else output
-            
+
+        m = nn.Softmax(dim=1)
+
         return SequenceClassifierOutput(
                 loss=loss,
-                logits=logits,
+                logits=m(logits),
                 hidden_states=outputs.hidden_states,
                 attentions=outputs.attentions
             )
@@ -1819,8 +1810,7 @@ class RobertaClassificationHead_Linear(nn.Module):
 
     def __init__(self, config):
         super().__init__()
-        #self.out_proj = nn.Linear(config.hidden_size, config.num_labels)
-        self.out_proj = nn.Linear(config.hidden_size, 1)
+        self.out_proj = nn.Linear(config.hidden_size, config.num_labels)
 
     def forward(self, features, **kwargs):
         x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
