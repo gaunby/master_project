@@ -1,7 +1,7 @@
 
 #!/bibsub> ## General options
 ### -- specify queue --
-#BSUB -q gpua40
+#BSUB -q gpuv100
 ### -- set the job Name --
 #BSUB -J tcav_cav_test
 ### -- ask for number of cores (default: 1) --

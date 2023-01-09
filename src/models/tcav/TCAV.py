@@ -6,7 +6,7 @@ import pickle
 import torch
 from transformers import RobertaTokenizer # Fast
 from torch.utils.data.dataloader import DataLoader
-from src.models.hate_tcav.Roberta_model_data import RobertaClassifier,GetDataset
+from src.models.tcav.Roberta_model_data import RobertaClassifier,GetDataset
 import random
 from datasets import load_from_disk
 import time
@@ -277,7 +277,7 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
     grads = data['grads']
     probs = data['probs'] #data['logits']
   else:
-    print('>>> calculating logits and grads...')
+    print('>>> calculating logits/probs and grads...')
     probs = []
     grads = []
     for sample in target_text:
@@ -312,7 +312,6 @@ def get_preds_tcavs(classifier = 'linear',model_layer = "roberta.encoder.layer.1
   sensitivities_random = [] 
   
   for cav in cav_random:
-    print(np.linalg.norm(cav))
     sensitivities_random.append([np.dot(grad, (-1)*cav) for grad in grads])
   
   

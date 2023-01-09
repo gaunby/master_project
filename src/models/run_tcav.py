@@ -14,17 +14,17 @@ np.random.seed(1001)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'negative_tweets_layer_dropout_0_11_probs' # name of saved file 
+FILE_NAME = 'negative_gender_layer_dropout_0_11_probs' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
 DROP_OUT = True
-COUNTER_SET = 'tweet_random' # 'wikipedia_split' #  
+COUNTER_SET = 'wikipedia_split' #  'tweet_random' # 
 
 num_random_set = 500 # number of runs/random folders
 
-concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-#concepts = ['gender','intersex','man','woman'] # 'transsexual',
+#concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
+concepts = ['gender','intersex','man','woman'] # 'transsexual',
 #concepts = ['news','world','sport','business','science']
 
 target_nr = 0
@@ -140,17 +140,17 @@ layers = ['roberta.encoder.layer.0.output.dense',
         'roberta.encoder.layer.11.output.dense']
 if DROP_OUT:
     layers = ['roberta.encoder.layer.0.output.dropout',
-            # 'roberta.encoder.layer.1.output.dropout',
-            # 'roberta.encoder.layer.2.output.dropout',
-            # 'roberta.encoder.layer.3.output.dropout',
-            # 'roberta.encoder.layer.4.output.dropout',
-            # 'roberta.encoder.layer.5.output.dropout',
-            # 'roberta.encoder.layer.6.output.dropout',
-            # 'roberta.encoder.layer.7.output.dropout',
-            # 'roberta.encoder.layer.8.output.dropout',
-            # 'roberta.encoder.layer.9.output.dropout',
-            # 'roberta.encoder.layer.10.output.dropout',
-            # 'roberta.encoder.layer.11.output.dropout'
+             'roberta.encoder.layer.1.output.dropout',
+             'roberta.encoder.layer.2.output.dropout',
+             'roberta.encoder.layer.3.output.dropout',
+             'roberta.encoder.layer.4.output.dropout',
+             'roberta.encoder.layer.5.output.dropout',
+             'roberta.encoder.layer.6.output.dropout',
+             'roberta.encoder.layer.7.output.dropout',
+             'roberta.encoder.layer.8.output.dropout',
+             'roberta.encoder.layer.9.output.dropout',
+             'roberta.encoder.layer.10.output.dropout',
+             'roberta.encoder.layer.11.output.dropout'
             ]
 
 if target_name == 'negative':
