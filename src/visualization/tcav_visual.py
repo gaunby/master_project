@@ -167,7 +167,7 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
 
 
 
-def plot_results_wout_insig(results, target , plot_concepts,PATH,plot_hist = False, save_fig = False, bonferroni_nr = None,min_p_val=0.05,
+def plot_results_mark(results, target , plot_concepts,PATH,plot_hist = False, save_fig = False, bonferroni_nr = None,min_p_val=0.05,
     t_test_mean = None):
 
   if bonferroni_nr == None:
@@ -219,11 +219,11 @@ def plot_results_wout_insig(results, target , plot_concepts,PATH,plot_hist = Fal
       if p_val > min_p_val:
         A = 8
         # statistically insignificant
-        #plot_data[bottleneck]['bn_vals'].append(0.01)
-        #plot_data[bottleneck]['bn_stds'].append(0)
-        #plot_data[bottleneck]['significant'].append(False)
-        #plot_data[bottleneck]['p-value'].append(p_val)
-        #plot_data[bottleneck]['concept'].append(concept)
+        plot_data[bottleneck]['bn_vals'].append(0)
+        plot_data[bottleneck]['bn_stds'].append(0)
+        plot_data[bottleneck]['significant'].append(False)
+        plot_data[bottleneck]['p-value'].append(p_val)
+        plot_data[bottleneck]['concept'].append(concept)
           
       else:
         plot_data[bottleneck]['bn_vals'].append(np.mean(result[bottleneck]['TCAV']))
@@ -269,33 +269,25 @@ def plot_results_wout_insig(results, target , plot_concepts,PATH,plot_hist = Fal
   
       
   # subtract number of random experiments
-  print(plot_data[bottleneck])
-  num_concepts = len(plot_concepts)#np.unique(plot_data[bottleneck]['concept']))
+  num_concepts = len(plot_concepts)
   print('num concepts', num_concepts)
   num_bottlenecks = len(plot_data)
   bar_width = 0.35
     
   # create location for each bar. scale by an appropriate factor to ensure 
-  # the final plot doesn't have any parts overlapping
   index = np.arange(num_concepts) * bar_width * (num_bottlenecks + 1)
 
-  # matplotlib
-  print(plot_data.items())
-  
+  # set up bar plot  
   fig, ax = plt.subplots(figsize = (15,6))
   # draw all bottlenecks individually
   for i, [bn, vals] in enumerate(plot_data.items()):
-    print('bn',bn)
-    label_text = f'{i}' #f'layer {i}'
+    label_text = f'{i}' 
     bar = ax.bar(index + i * bar_width, vals['bn_vals'],
         bar_width, yerr=vals['bn_stds'],ecolor = 'grey', label=label_text, color = sns.color_palette("Paired")[i])
-    # draw stars to mark bars that are stastically insignificant to 
-    # show them as different from others
+    # mark bars that are stastically insignificant to show them as different from others
     for j, significant in enumerate(vals['significant']):
       if not significant:
-        ax.text(index[j] + i * bar_width - 0.1, 0.01, "*",
-            fontdict = {'weight': 'bold', 'size': 16,
-            'color': bar.patches[0].get_facecolor()})
+        ax.plot(index[j] + i * bar_width, 0.5,marker =  "x", color=  bar.patches[0].get_facecolor() , markersize = 10)
   # set properties
   ax.set_title('TCAV scores for Concepts and Layers', fontsize = 20)
   ax.set_ylabel('TCAV score', fontsize = 'xx-large')
@@ -303,17 +295,14 @@ def plot_results_wout_insig(results, target , plot_concepts,PATH,plot_hist = Fal
   
   plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
   
-  ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')#fontsize = 16)
-  ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')#, ('layer 0','layer 1','layer 2','layer 3','layer 4','layer 5','layer 6','layer 7','layer 8','layer 9','layer 10','layer 11'))
+  ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')
+  ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')
+  plt.axhline(y = 0.5, color = 'lightgrey', linestyle = '--',lw = 0.8)
   fig.tight_layout()
   if save_fig:
     i = 0 
     print('Now overwritting and saving figure')
     fig_path = PATH +'barplot_'+target+'_'+''.join(plot_concepts)+'_bonferroni_'+str(bonferroni_nr)+'.pdf'
     plt.savefig(fig_path)
-
-  # ct stores current time
-  # ct = datetime.datetime.now()
-  # plt.savefig(f'SavedResults/results_{ct}.png')
 
   return plot_data

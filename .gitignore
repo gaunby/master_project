@@ -98,4 +98,5 @@ target/
 # folders to ignore
 notebooks/figures_tables
 src/visualization/figures
+src/visualization/table
 src/models/tcav/models
