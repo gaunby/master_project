@@ -217,10 +217,9 @@ def plot_results_mark(results, target , plot_concepts,PATH,plot_hist = False, sa
               plot_data[bottleneck]['random_p-value'].append('True')
       
       if p_val > min_p_val:
-        A = 8
         # statistically insignificant
-        plot_data[bottleneck]['bn_vals'].append(0)
-        plot_data[bottleneck]['bn_stds'].append(0)
+        plot_data[bottleneck]['bn_vals'].append(np.mean(result[bottleneck]['TCAV']))
+        plot_data[bottleneck]['bn_stds'].append(np.std(result[bottleneck]['TCAV']))
         plot_data[bottleneck]['significant'].append(False)
         plot_data[bottleneck]['p-value'].append(p_val)
         plot_data[bottleneck]['concept'].append(concept)
@@ -288,16 +287,20 @@ def plot_results_mark(results, target , plot_concepts,PATH,plot_hist = False, sa
     for j, significant in enumerate(vals['significant']):
       if not significant:
         ax.plot(index[j] + i * bar_width, 0.5,marker =  "x", color=  bar.patches[0].get_facecolor() , markersize = 10)
+        bar = ax.bar(index + i * bar_width, 0,
+        bar_width,ecolor = 'grey', label=label_text, color = sns.color_palette("Paired")[i])
   # set properties
   ax.set_title('TCAV scores for Concepts and Layers', fontsize = 20)
   ax.set_ylabel('TCAV score', fontsize = 'xx-large')
   ax.set_xticks(index + num_bottlenecks * bar_width / 2)
   
-  plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
+  #plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
   
   ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')
   ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')
   plt.axhline(y = 0.5, color = 'lightgrey', linestyle = '--',lw = 0.8)
+  plt.axhline(y = 0, color = 'lightgrey', linestyle = '-',lw = 0.8)
+  plt.axhline(y = 1, color = 'lightgrey', linestyle = '-',lw = 0.8)
   fig.tight_layout()
   if save_fig:
     i = 0 
