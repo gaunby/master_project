@@ -99,7 +99,7 @@ neg = [ds_neg_text[i] for i in list(np.random.choice(len(ds_neg_text),N))]
 datadir = '/work3/s174498/concept_random_dataset/'
 
 # load woman 
-filefolder = 'wikipedia_20220301/gender_concepts/'
+filefolder = 'wikipedia_20220301/sports_concepts/'
 
 for i, folder in enumerate(folders):
     ds = load_from_disk(datadir +filefolder + folder)
@@ -135,7 +135,9 @@ else:
 save_tcav = {}
 save_tcav[target_name] = {concepts[0]:{layers[0] :{'TCAV':0 ,'acc':0}}, 'random':{layers[0]:{'TCAV':0}}}
 for concept_name in concepts:
-    concept_data = locals()['concept_name'] 
+    concept_data = locals()[concept_name] 
+    print(len(concept_data))
+    #print(concept_data)
     save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
     
     for nr, layer in enumerate(layers):
