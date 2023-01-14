@@ -23,7 +23,7 @@ COUNTER_SET = 'wikipedia_split' #  'tweet_random' #
 
 num_random_set = 500 # number of runs/random folders
 
-concepts = ['Acrobatic sports',
+folders = ['Acrobatic sports',
  'Air sports',
  'Aquatic and paddle sports',
  'Archery',
@@ -72,6 +72,10 @@ concepts = ['Acrobatic sports',
  'Target sport',
  'Walking',
  'Weightlifting']
+
+concepts = list(map(lambda x: x.lower(), folders))
+concepts = [x.replace(' ','_') for x in concepts]
+
 target_nr = 0
 target_name = 'negative'
 
@@ -92,12 +96,15 @@ pos = [ds_pos_text[i] for i in list(np.random.choice(len(ds_pos_text),N))]
 neg = [ds_neg_text[i] for i in list(np.random.choice(len(ds_neg_text),N))]
 
 # Concept data 
+datadir = '/work3/s174498/concept_random_dataset/'
+
 # load woman 
 filefolder = 'wikipedia_20220301/gender_concepts/'
-filename = 'woman_female'
-ds_woman = load_from_disk(datadir +filefolder + filename)
-ds_woman = ds_woman['text_list']
-woman = [ds_woman[i] for i in list(np.random.choice(len(ds_woman),M))]
+
+for i, folder in enumerate(folders):
+    ds = load_from_disk(datadir +filefolder + folder)
+    ds = ds['text_list']
+    locals()[concepts[i]] = [ds[i] for i in list(np.random.choice(len(ds),M))]
 
 
 
@@ -128,48 +135,9 @@ else:
 save_tcav = {}
 save_tcav[target_name] = {concepts[0]:{layers[0] :{'TCAV':0 ,'acc':0}}, 'random':{layers[0]:{'TCAV':0}}}
 for concept_name in concepts:
-    if concept_name == 'hate':
-        concept_data = hate #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'offensive':
-        concept_data = offen #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'irony':
-        concept_data = irony #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'news':
-        concept_data = ag_news #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'sport':
-        concept_data = ag_sport #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'business':
-        concept_data = ag_buss #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'world':
-        concept_data = ag_world #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'science':
-        concept_data = ag_sci #
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'gender':
-        concept_data = gender
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'woman':
-        concept_data = woman
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'man':
-        concept_data = man
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'intersex':
-        concept_data = inter
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    elif concept_name == 'transsexual':
-        concept_data = trans
-        save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
-    else:
-        print('missing concet data name')
-
+    concept_data = locals()['concept_name'] 
+    save_tcav[target_name][concept_name] = {layers[0] :{'TCAV':0 ,'acc':0}}
+    
     for nr, layer in enumerate(layers):
         print(layer)
         print('TCAV for layer:', nr)
