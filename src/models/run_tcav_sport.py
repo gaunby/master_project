@@ -14,7 +14,7 @@ np.random.seed(1001)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'negative_gender_layer_dropout_0_11_probs' # name of saved file 
+FILE_NAME = 'negative_sport' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
@@ -23,10 +23,55 @@ COUNTER_SET = 'wikipedia_split' #  'tweet_random' #
 
 num_random_set = 500 # number of runs/random folders
 
-#concepts = ['hate','irony','offensive'] # if not hate or news set variable later on 
-concepts = ['gender','intersex','man','woman'] # 'transsexual',
-#concepts = ['news','world','sport','business','science']
-
+concepts = ['Acrobatic sports',
+ 'Air sports',
+ 'Aquatic and paddle sports',
+ 'Archery',
+ 'Athletics',
+ 'Bat and ball games',
+ 'Board game',
+ 'Boardsport',
+ 'Card game',
+ 'Catching games',
+ 'Climbing',
+ 'Combat sports',
+ 'Cycling',
+ 'Dog sports',
+ 'Electronic sports',
+ 'Equestrian sports',
+ 'Esports',
+ 'Fishing',
+ 'Flying disc sports',
+ 'Gymnastics',
+ 'Hunting',
+ 'Ice sports',
+ 'Invasion games',
+ 'Kite sports',
+ 'Marker sports',
+ 'Mixed discipline',
+ 'Motersport',
+ 'Net and wall games',
+ 'Orienteering family',
+ 'Other',
+ 'Other mind sports',
+ 'Overlapping sports',
+ 'Parkour Freerunning',
+ 'Remote control',
+ 'Rodeo',
+ 'Running',
+ 'Sailing',
+ 'Shooting sports',
+ 'Skating sports',
+ 'Snow sports',
+ 'Speedcubing',
+ 'Stacking',
+ 'Street sports',
+ 'Strength sports',
+ 'Table sports',
+ 'Tag game',
+ 'Target sport',
+ 'Walking',
+ 'Weightlifting']
 target_nr = 0
 target_name = 'negative'
 
@@ -47,31 +92,6 @@ pos = [ds_pos_text[i] for i in list(np.random.choice(len(ds_pos_text),N))]
 neg = [ds_neg_text[i] for i in list(np.random.choice(len(ds_neg_text),N))]
 
 # Concept data 
-# load hate
-datadir = '/work3/s174498/concept_random_dataset/'
-filename = 'tweet_hate/test'
-ds_hate = load_from_disk(datadir + filename)
-df_label_hate = pd.DataFrame(ds_hate['label'])
-idx_hate = df_label_hate[df_label_hate[0] == 1].index.values
-ds_hate = ds_hate['text']
-hate = [ds_hate[i] for i in list(np.random.choice( idx_hate,M))]
-
-# load offensive
-filename = 'tweet_offensive/test'
-ds_off = load_from_disk(datadir + filename)
-df_label_off = pd.DataFrame(ds_off['label'])
-idx_off = df_label_off[df_label_off[0] == 1].index.values
-ds_off = ds_off['text']
-offen = [ds_off[i] for i in list(np.random.choice( idx_off,M))]
-
-# load irony 
-filename = 'tweet_irony/test'
-ds_irony = load_from_disk(datadir + filename)
-df_label_irony = pd.DataFrame(ds_irony['label'])
-idx_irony = df_label_irony[df_label_irony[0] == 1].index.values
-ds_irony = ds_irony['text']
-irony = [ds_irony[i] for i in list(np.random.choice( idx_irony,M))]
-
 # load woman 
 filefolder = 'wikipedia_20220301/gender_concepts/'
 filename = 'woman_female'
@@ -79,65 +99,8 @@ ds_woman = load_from_disk(datadir +filefolder + filename)
 ds_woman = ds_woman['text_list']
 woman = [ds_woman[i] for i in list(np.random.choice(len(ds_woman),M))]
 
-# load man
-filename = 'man_male'
-ds_man = load_from_disk(datadir +filefolder + filename)
-ds_man = ds_man['text_list']
-man = [ds_man[i] for i in list(np.random.choice(len(ds_man),M))]
-
-# load trans
-filename = 'Transsexual'
-ds_trans = load_from_disk(datadir +filefolder + filename)
-ds_trans = ds_trans['text_list']
-trans = [ds_trans[i] for i in list(np.random.choice(len(ds_trans),M))]
-
-# load intersex
-filename = 'Intersex'
-ds_inter = load_from_disk(datadir +filefolder + filename)
-ds_inter = ds_inter['text_list']
-inter = [ds_inter[i] for i in list(np.random.choice(len(ds_inter),M))]
-
-# Gender level I concept
-ds_gender = ds_man + ds_woman + ds_inter
-gender = [ds_gender[i] for i in list(np.random.choice(len(ds_gender),M))]
-
-# load 20 newsgroups
-filename = '20_newsgroups/test'
-ds_news= load_from_disk(datadir + filename)
-ds_news = ds_news['text']
-news = [ds_news[i] for i in list(np.random.choice(len(ds_news),M))]
-
-# load ag news 
-# labels: World (0), Sports (1), Business (2), Sci/Tech (3).
-filename = 'ag_news/test'
-ag_news= load_from_disk(datadir + filename)
-
-df_label_ag = pd.DataFrame(ag_news['label'])
-idx_world = df_label_ag[df_label_ag[0] == 0].index.values
-idx_sport = df_label_ag[df_label_ag[0] == 1].index.values
-idx_buss = df_label_ag[df_label_ag[0] == 2].index.values
-idx_sci = df_label_ag[df_label_ag[0] == 3].index.values
-
-ag_news = ag_news['text']
-ag_world = [ag_news[i] for i in list(np.random.choice( idx_world,M))]
-ag_sport = [ag_news[i] for i in list(np.random.choice( idx_sport,M))]
-ag_buss = [ag_news[i] for i in list(np.random.choice( idx_buss,M))]
-ag_sci = [ag_news[i] for i in list(np.random.choice( idx_sci,M))]
-ag_news = [ag_news[i] for i in list(np.random.choice(len(ag_news),M))]
 
 
-layers = ['roberta.encoder.layer.0.output.dense',
-        'roberta.encoder.layer.1.output.dense',
-        'roberta.encoder.layer.2.output.dense',
-        'roberta.encoder.layer.3.output.dense',
-        'roberta.encoder.layer.4.output.dense',
-        'roberta.encoder.layer.5.output.dense',
-        'roberta.encoder.layer.6.output.dense',
-        'roberta.encoder.layer.7.output.dense',
-        'roberta.encoder.layer.8.output.dense',
-        'roberta.encoder.layer.9.output.dense',
-        'roberta.encoder.layer.10.output.dense',
-        'roberta.encoder.layer.11.output.dense']
 if DROP_OUT:
     layers = ['roberta.encoder.layer.0.output.dropout',
              'roberta.encoder.layer.1.output.dropout',
