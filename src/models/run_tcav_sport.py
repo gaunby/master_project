@@ -14,7 +14,7 @@ np.random.seed(1001)
 ######## SET ALL PARAMETERS HERE ############
 #############################################
 
-FILE_NAME = 'negative_sport' # name of saved file 
+FILE_NAME = 'positive_sport' # name of saved file 
 N = 300 # number of target examples 
 M = 150 # number of concept examples
 
@@ -22,6 +22,9 @@ DROP_OUT = True
 COUNTER_SET = 'wikipedia_split' #  'tweet_random' # 
 
 num_random_set = 500 # number of runs/random folders
+
+target_nr = 1
+target_name = 'positive'
 
 folders = ['Acrobatic sports',
  'Air sports',
@@ -76,8 +79,6 @@ folders = ['Acrobatic sports',
 concepts = list(map(lambda x: x.lower(), folders))
 concepts = [x.replace(' ','_') for x in concepts]
 
-target_nr = 0
-target_name = 'negative'
 
 ############################################
 ############################################
