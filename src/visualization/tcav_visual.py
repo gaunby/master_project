@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fig = False, bonferroni_nr = None,min_p_val=0.05,
-    t_test_mean = None):
+    t_test_mean = None, names = None):
   """Helper function to organize results.
   When run in a notebook, outputs a matplotlib bar plot of the
   TCAV scores for all bottlenecks for each concept, replacing the
@@ -28,7 +28,7 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
 
   if bonferroni_nr == None:
     bonferroni_nr = 1
-  print(PATH)
+  #print(PATH)
   min_p_val = min_p_val/bonferroni_nr
     
   # to plot, must massage data again 
@@ -74,7 +74,7 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
       
       if p_val > min_p_val:
         # statistically insignificant
-        plot_data[bottleneck]['bn_vals'].append(0.01)
+        plot_data[bottleneck]['bn_vals'].append(0)
         plot_data[bottleneck]['bn_stds'].append(0)
         plot_data[bottleneck]['significant'].append(False)
         plot_data[bottleneck]['p-value'].append(p_val)
@@ -123,7 +123,7 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
   
       
   # subtract number of random experiments
-  print(plot_data[bottleneck])
+  #print(plot_data[bottleneck])
   num_concepts = len(plot_concepts) 
   print('num concepts', num_concepts)
   num_bottlenecks = len(plot_data)
@@ -136,7 +136,7 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
   fig, ax = plt.subplots(figsize = (15,6))
   # draw all bottlenecks individually
   for i, [bn, vals] in enumerate(plot_data.items()):
-    print('bn',bn)
+    #print('bn',bn)
     label_text = f'{i}' 
     bar = ax.bar(index + i * bar_width, vals['bn_vals'],
         bar_width, yerr=vals['bn_stds'],ecolor = 'grey', label=label_text, color = sns.color_palette("Paired")[i])
@@ -144,18 +144,23 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
     # show them as different from others
     for j, significant in enumerate(vals['significant']):
       if not significant:
-        ax.text(index[j] + i * bar_width - 0.1, 0.01, "*",
-            fontdict = {'weight': 'bold', 'size': 16,
-            'color': bar.patches[0].get_facecolor()})
+        #ax.text(index[j] + i * bar_width - 0.1, 0.01, "*",fontdict = {'weight': 'bold', 'size': 16,'color': bar.patches[0].get_facecolor()})
+        ax.plot(index[j] + i * bar_width, 0.5,marker =  "x", color=  bar.patches[0].get_facecolor() , markersize = 10)
   # set properties
   ax.set_title('TCAV scores for Concepts and Layers', fontsize = 20)
   ax.set_ylabel('TCAV score', fontsize = 'xx-large')
   ax.set_xticks(index + num_bottlenecks * bar_width / 2)
   
-  plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
+  # plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
+  
+  if names is not None:
+    plot_concepts = names # ['gender','gender:intersex','gender:man','gender:woman']
   
   ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')#fontsize = 16)
   ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')#, ('layer 0','layer 1','layer 2','layer 3','layer 4','layer 5','layer 6','layer 7','layer 8','layer 9','layer 10','layer 11'))
+  plt.axhline(y = 0.5, color = 'lightgrey', linestyle = '--',lw = 0.8)
+  plt.axhline(y = 0, color = 'lightgrey', linestyle = '-',lw = 0.8)
+  plt.axhline(y = 1, color = 'lightgrey', linestyle = '-',lw = 0.8)
   fig.tight_layout()
   if save_fig:
     i = 0 
@@ -168,7 +173,7 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
 
 
 def plot_results_mark(results, target , plot_concepts,PATH,plot_hist = False, save_fig = False, bonferroni_nr = None,min_p_val=0.05,
-    t_test_mean = None):
+    t_test_mean = None, names = None):
 
   if bonferroni_nr == None:
     bonferroni_nr = 1
@@ -287,14 +292,14 @@ def plot_results_mark(results, target , plot_concepts,PATH,plot_hist = False, sa
     for j, significant in enumerate(vals['significant']):
       if not significant:
         ax.plot(index[j] + i * bar_width, 0.5,marker =  "x", color=  bar.patches[0].get_facecolor() , markersize = 10)
-        bar = ax.bar(index + i * bar_width, 0,
-        bar_width,ecolor = 'grey', label=label_text, color = sns.color_palette("Paired")[i])
+        #bar = ax.bar(index + i * bar_width, 0, bar_width,ecolor = 'grey', label=label_text, color = sns.color_palette("Paired")[i])
   # set properties
   ax.set_title('TCAV scores for Concepts and Layers', fontsize = 20)
   ax.set_ylabel('TCAV score', fontsize = 'xx-large')
   ax.set_xticks(index + num_bottlenecks * bar_width / 2)
   
-  #plot_concepts = ['gender','gender:intersex','gender:man','gender:woman']
+  if names is not None:
+    plot_concepts = names # ['gender','gender:intersex','gender:man','gender:woman']
   
   ax.set_xticklabels(plot_concepts, fontsize = 'xx-large')
   ax.legend(fontsize = 'large',loc='center left', bbox_to_anchor=(1, 0.5), title = 'Layer')
