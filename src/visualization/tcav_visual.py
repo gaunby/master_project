@@ -94,7 +94,9 @@ def plot_results(results, target , plot_concepts,PATH,plot_hist = False, save_fi
     "news": "darkblue", "world": "darkorange",'sport':'g','business':'darkviolet','science':'darkred', 
     "woman": "darkblue", "transsexual": "darkorange", "intersex": "g", "man": "darkviolet",
     'hate': "darkblue",'irony': "darkorange",'offensive':'g' ,
-    "gender": "darkorange",}
+    "gender": "darkorange",
+    "motersport": "darkblue", "esports": "darkorange",'net_and_wall_games':'g','walking':'darkviolet','mixed_discipline':'darkred', 
+    "hunting": "darkblue", "running": "darkorange",'weightlifting':'g','combat_sports':'darkviolet','street_sports':'darkred', }
     i = 0
     
     nr_plots = len(plot_concepts)
